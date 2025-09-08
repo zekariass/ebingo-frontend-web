@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  balance   Float    @default(0.0)
+  status    String   @default("active") // active, banned
+  role      String   @default("player") // player, admin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  gameEntries GameEntry[]
+  transactions Transaction[]
+  bingoCards  BingoCard[]
+  bingoClaims BingoClaim[]
+
+  @@map("users")
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  name        String
+  fee         Float
+  capacity    Int
+  pattern     String   // line, four-corners, full-house, x-pattern
+  status      String   @default("waiting") // waiting, active, finished
+  gameStatus  String   @default("waiting") // waiting, playing, finished
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  games       Game[]
+  gameEntries GameEntry[]
+
+  @@map("rooms")
+}
+
+model Game {
+  id              String   @id @default(cuid())
+  roomId          String
+  status          String   @default("waiting") // waiting, playing, finished
+  numbersCalledCount Int   @default(0)
+  calledNumbers   String   @default("") // JSON array of called numbers
+  winnerId        String?
+  prizeAmount     Float?
+  startedAt       DateTime?
+  endedAt         DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  room         Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  gameEntries  GameEntry[]
+  bingoCards   BingoCard[]
+  bingoClaims  BingoClaim[]
+
+  @@map("games")
+}
+
+model GameEntry {
+  id       String @id @default(cuid())
+  userId   String
+  roomId   String
+  gameId   String?
+  fee      Float
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  game Game? @relation(fields: [gameId], references: [id], onDelete: SetNull)
+
+  @@map("game_entries")
+}
+
+model BingoCard {
+  id         String @id @default(cuid())
+  userId     String
+  gameId     String
+  cardNumber Int
+  numbers    String // JSON array of 5x5 numbers
+  marked     String @default("") // JSON array of marked positions
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("bingo_cards")
+}
+
+model BingoClaim {
+  id        String   @id @default(cuid())
+  userId    String
+  gameId    String
+  cardId    String
+  pattern   String
+  verified  Boolean  @default(false)
+  isWinner  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("bingo_claims")
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // deposit, withdrawal, game_entry, prize_payout
+  amount      Float
+  status      String   @default("pending") // pending, completed, failed
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
