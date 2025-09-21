@@ -6,9 +6,37 @@ import { Button } from "@/components/ui/button"
 import { Users, DollarSign, GamepadIcon, TrendingUp, Play, Pause, Settings, RefreshCw } from "lucide-react"
 import { useAdminStore } from "@/lib/stores/admin-store"
 import { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
+/**
+ * Admin dashboard component providing comprehensive platform management and analytics.
+ * Displays key metrics, active rooms, recent transactions, and system controls.
+ *
+ * Features:
+ * - Real-time platform statistics (players, revenue, games)
+ * - Active rooms monitoring with status and controls
+ * - Recent transaction history display
+ * - Manual data refresh functionality
+ * - Error handling and loading states
+ * - Responsive grid layout for different screen sizes
+ *
+ * Data Sources:
+ * - Platform statistics from admin store
+ * - Active rooms from room management API
+ * - Transaction data from payment API
+ *
+ * @returns JSX element containing the complete admin dashboard
+ *
+ * @example
+ * \`\`\`tsx
+ * // Used in admin routes
+ * <AdminDashboard />
+ * \`\`\`
+ */
 export function AdminDashboard() {
   const { stats, activeRooms, recentTransactions, isLoading, error, loadDashboardData, refreshData } = useAdminStore()
+
+  const {t, i18n} = useTranslation('admin')
 
   useEffect(() => {
     loadDashboardData()
@@ -30,7 +58,7 @@ export function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">Monitor and manage your bingo platform</p>
         </div>
         <Button onClick={refreshData} disabled={isLoading} variant="outline">

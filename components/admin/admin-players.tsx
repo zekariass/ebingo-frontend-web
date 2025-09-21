@@ -1,18 +1,32 @@
 "use client"
 
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, Ban, CheckCircle, DollarSign } from "lucide-react"
 import { useAdminStore } from "@/lib/stores/admin-store"
-import { useState, useEffect } from "react"
+import { InputField } from "@/components/ui/form-fields"
+import { playerSearchSchema, type PlayerSearchFormData } from "@/lib/schemas/admin-schemas"
 
 export function AdminPlayers() {
   const { players, isLoading, error, banPlayer, unbanPlayer, loadPlayers } = useAdminStore()
 
-  const [searchTerm, setSearchTerm] = useState("")
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = useForm<PlayerSearchFormData>({
+    resolver: zodResolver(playerSearchSchema),
+    defaultValues: {
+      searchTerm: "",
+    },
+  })
+
+  const searchTerm = watch("searchTerm") || ""
 
   useEffect(() => {
     loadPlayers(searchTerm)
@@ -41,12 +55,14 @@ export function AdminPlayers() {
         <CardContent>
           <div className="flex items-center gap-2 mb-4">
             <Search className="h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+            <div className="max-w-sm">
+              <InputField
+                label=""
+                placeholder="Search by name or email..."
+                {...register("searchTerm")}
+                error={errors.searchTerm?.message}
+              />
+            </div>
           </div>
 
           {isLoading ? (

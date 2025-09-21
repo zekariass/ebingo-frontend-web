@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { WalletBalance } from "@/components/payment/wallet-balance"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog"
 import { TransactionHistory } from "@/components/payment/transaction-history"
 import { History, Settings, Wallet } from "lucide-react"
 import Link from "next/link"
@@ -12,6 +12,8 @@ import { useSession } from "@/hooks/use-session"
 import HeaderUserDropdown from "./header-user-dropdown"
 import LoginButton from "../auth/login-button"
 import SignupButton from "../auth/signup-button"
+import { LanguageSwitcher } from "../ui/language-switcher"
+import { DialogTitle } from "@radix-ui/react-dialog"
 
 export function LobbyHeader() {
   const [walletOpen, setWalletOpen] = useState(false)
@@ -48,6 +50,11 @@ export function LobbyHeader() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Your Wallet
+                    </DialogTitle>
+                  </DialogHeader>
                   <WalletBalance />
                 </DialogContent>
               </Dialog>
@@ -60,6 +67,11 @@ export function LobbyHeader() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Your Transaction History
+                    </DialogTitle>
+                  </DialogHeader>
                   <TransactionHistory />
                 </DialogContent>
               </Dialog>
@@ -71,6 +83,7 @@ export function LobbyHeader() {
                 </Link>
               </Button>
               <HeaderUserDropdown />
+              <Link href="/test">Test</Link>
               <ModeToggle />
               </>}
             </div>

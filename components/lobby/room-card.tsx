@@ -50,9 +50,9 @@ export function RoomCard({ room }: RoomCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <h3 className="font-semibold text-lg leading-tight">{room.name}</h3>
+            {/* <h3 className="font-semibold text-lg leading-tight">{room.name}</h3> */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <DollarSign className="h-4 w-4" />
+              {/* <DollarSign className="h-4 w-4" /> */}
               <span className="font-medium">${room.fee} entry</span>
             </div>
           </div>

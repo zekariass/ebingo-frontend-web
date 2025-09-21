@@ -1,4 +1,6 @@
 import { create } from "zustand"
+import { RoomFormData } from "../schemas/admin-schemas"
+import { log } from "console"
 
 interface AdminStats {
   activePlayers: number
@@ -29,16 +31,31 @@ interface Transaction {
   timestamp: string
 }
 
-interface Room {
-  id: string
-  name: string
-  fee: number
-  capacity: number
-  players: number
-  status: "active" | "waiting" | "finished"
-  gameStatus: "waiting" | "playing" | "finished"
-  pattern: string
-}
+// interface Room {
+//   id: string
+//   name: string
+//   fee: number
+//   capacity: number
+//   players: number
+//   minPlayers: number,
+//   status: "OPEN" | "GAME_READY" | "GAME_STARTED" | "CLOSED"
+//   gameStatus: "waiting" | "playing" | "finished"
+//   pattern: string
+// }
+
+export type Room = {
+  id: number;                  // Long -> number
+  name: string;
+  capacity: number;             // Integer -> number
+  minPlayers: number;           // Integer -> number
+  entryFee: number;             // BigDecimal -> number
+  pattern: "LINE" | "LINE_AND_CORNERS" | "CORNERS" | "FULL_HOUSE"; // match RoomPattern enum
+  status: "OPEN" | "GAME_READY" | "GAME_STARTED" | "CLOSED";     // match RoomStatus enum
+  createdBy: number;            // Long -> number
+  createdAt: string;            // LocalDateTime -> ISO string
+  updatedAt: string;            // LocalDateTime -> ISO string
+};
+
 
 interface Game {
   id: string
@@ -106,9 +123,10 @@ interface AdminStore {
   // Actions
   loadDashboardData: () => Promise<void>
   refreshData: () => Promise<void>
-  createRoom: (room: Omit<Room, "id" | "players" | "status" | "gameStatus">) => Promise<void>
+  createRoom: (room: RoomFormData) => Promise<void>
   updateRoom: (id: string, updates: Partial<Room>) => Promise<void>
-  deleteRoom: (id: string) => Promise<void>
+  deleteRoom: (id: number) => Promise<void>
+  // retrieveRooms: () => Promise<Room[]>
   controlGame: (gameId: string, action: string, data?: any) => Promise<void>
   banPlayer: (playerId: string) => Promise<void>
   unbanPlayer: (playerId: string) => Promise<void>
@@ -116,9 +134,12 @@ interface AdminStore {
   loadPlayers: (search?: string) => Promise<void>
   loadGames: () => Promise<void>
   loadAnalytics: () => Promise<void>
+  
 }
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
+
+
   // Initial state
   stats: {
     activePlayers: 247,
@@ -172,28 +193,29 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
   systemStatus: "healthy",
   notifications: 3,
-  rooms: [
-    {
-      id: "room-1",
-      name: "$10 Quick Play",
-      fee: 10,
-      capacity: 100,
-      players: 45,
-      status: "active",
-      gameStatus: "playing",
-      pattern: "line",
-    },
-    {
-      id: "room-2",
-      name: "$50 High Stakes",
-      fee: 50,
-      capacity: 100,
-      players: 78,
-      status: "active",
-      gameStatus: "waiting",
-      pattern: "full-house",
-    },
-  ],
+  rooms: [],
+  // [
+  //   {
+  //     id: "room-1",
+  //     name: "$10 Quick Play",
+  //     fee: 10,
+  //     capacity: 100,
+  //     players: 45,
+  //     status: "active",
+  //     gameStatus: "playing",
+  //     pattern: "line",
+  //   },
+  //   {
+  //     id: "room-2",
+  //     name: "$50 High Stakes",
+  //     fee: 50,
+  //     capacity: 100,
+  //     players: 78,
+  //     status: "active",
+  //     gameStatus: "waiting",
+  //     pattern: "full-house",
+  //   },
+  // ],
   activeGames: [
     {
       id: "game-1",
@@ -284,7 +306,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     try {
       const response = await fetch("/api/admin/rooms", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify(roomData),
       })
 
@@ -424,6 +446,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       const result = await response.json()
 
       if (result.success) {
+        console.log("===================>: "+ JSON.stringify(result))
         set({ rooms: result.data })
       } else {
         set({ error: result.error })

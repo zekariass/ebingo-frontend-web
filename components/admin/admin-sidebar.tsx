@@ -3,11 +3,17 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { LayoutDashboard, Users, GamepadIcon, Settings, BarChart3, Shield, LogOut, Mic } from "lucide-react"
+import { LayoutDashboard, Users, GamepadIcon, Settings, BarChart3, Shield, LogOut, Mic, X, Home } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
+
 const sidebarItems = [
+  {
+    title: "Home",
+    href: "/",
+    icon: Home,
+  },
   {
     title: "Dashboard",
     href: "/admin",
@@ -40,42 +46,116 @@ const sidebarItems = [
   },
 ]
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+/**
+ * Admin Sidebar Component
+ *
+ * Responsive navigation sidebar for admin dashboard. Shows as fixed sidebar on desktop
+ * and slide-in drawer on mobile/tablet devices.
+ *
+ * @param isOpen - Controls visibility of mobile drawer
+ * @param onClose - Callback function to close mobile drawer
+ * @returns JSX element containing the navigation sidebar
+ */
+export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname()
 
+  // Removed auto-close on pathname change to prevent drawer from closing immediately
+  // useEffect(() => {
+  //   if (onClose) {
+  //     onClose()
+  //   }
+  // }, [pathname, onClose])
+
   return (
-    <div className="w-64 bg-card border-r">
-      <div className="p-6">
-        <div className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary" />
-          <span className="font-bold text-lg">Bingo Admin</span>
-        </div>
-      </div>
+    <>
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} aria-hidden="true" />}
 
-      <ScrollArea className="flex-1 px-3">
-        <div className="space-y-1">
-          {sidebarItems.map((item) => (
-            <Button
-              key={item.href}
-              variant={pathname === item.href ? "secondary" : "ghost"}
-              className={cn("w-full justify-start", pathname === item.href && "bg-secondary")}
-              asChild
-            >
-              <Link href={item.href}>
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.title}
-              </Link>
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transition-transform duration-300 ease-in-out lg:hidden",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex flex-col h-full">
+          <div className="p-4 flex items-center justify-between border-b">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              <span className="font-bold text-base">Bingo Admin</span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close menu">
+              <X className="h-4 w-4" />
             </Button>
-          ))}
-        </div>
-      </ScrollArea>
+          </div>
 
-      <div className="p-3 border-t">
-        <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
-          <LogOut className="mr-2 h-4 w-4" />
-          Sign Out
-        </Button>
+          <ScrollArea className="flex-1 px-3 py-2">
+            <div className="space-y-1">
+              {sidebarItems.map((item) => (
+                <Button
+                  key={item.href}
+                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  className={cn("w-full justify-start text-sm py-2", pathname === item.href && "bg-secondary")}
+                  asChild
+                  onClick={onClose} // Close drawer when navigation item is clicked
+                >
+                  <Link href={item.href}>
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.title}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </ScrollArea>
+
+          <div className="p-3 border-t">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 text-sm py-2"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:bg-card lg:border-r">
+        <div className="p-6 border-b">
+          <div className="flex items-center gap-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <span className="font-bold text-lg">Bingo Admin</span>
+          </div>
+        </div>
+
+        <ScrollArea className="flex-1 px-3 py-2">
+          <div className="space-y-1">
+            {sidebarItems.map((item) => (
+              <Button
+                key={item.href}
+                variant={pathname === item.href ? "secondary" : "ghost"}
+                className={cn("w-full justify-start", pathname === item.href && "bg-secondary")}
+                asChild
+              >
+                <Link href={item.href}>
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.title}
+                </Link>
+              </Button>
+            ))}
+          </div>
+        </ScrollArea>
+
+        <div className="p-3 border-t">
+          <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    </>
   )
 }

@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SelectItem } from "@/components/ui/select"
 import { Volume2, VolumeX, RotateCcw } from "lucide-react"
+import { InputField, SelectField } from "@/components/ui/form-fields"
+import { numberCallSchema, type NumberCallFormData } from "@/lib/schemas/admin-schemas"
 
 interface Game {
   id: string
@@ -21,9 +23,20 @@ export function ManualNumberCalling() {
   const [selectedGame, setSelectedGame] = useState<string>("")
   const [games, setGames] = useState<Game[]>([])
   const [calledNumbers, setCalledNumbers] = useState<number[]>([])
-  const [currentNumber, setCurrentNumber] = useState<string>("")
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<NumberCallFormData>({
+    resolver: zodResolver(numberCallSchema),
+    defaultValues: {
+      number: 1,
+    },
+  })
 
   // Load active games
   useEffect(() => {
@@ -81,7 +94,7 @@ export function ManualNumberCalling() {
 
       if (result.success) {
         setCalledNumbers((prev) => [...prev, number])
-        setCurrentNumber("")
+        reset()
 
         // Voice announcement
         if (isVoiceEnabled && "speechSynthesis" in window) {
@@ -112,13 +125,8 @@ export function ManualNumberCalling() {
     return ""
   }
 
-  const handleManualCall = () => {
-    const number = Number.parseInt(currentNumber)
-    if (number >= 1 && number <= 75) {
-      callNumber(number)
-    } else {
-      console.log("Invalid Number: Please enter a number between 1 and 75")
-    }
+  const onSubmit = async (data: NumberCallFormData) => {
+    await callNumber(data.number)
   }
 
   const generateRandomNumber = () => {
@@ -163,39 +171,37 @@ export function ManualNumberCalling() {
             <CardDescription>Select a game and call numbers</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="game-select">Select Game</Label>
-              <Select value={selectedGame} onValueChange={setSelectedGame}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an active game" />
-                </SelectTrigger>
-                <SelectContent>
-                  {games.map((game) => (
-                    <SelectItem key={game.id} value={game.id}>
-                      {game.roomName} ({game.numbersCalledCount} called)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <SelectField
+              label="Select Game"
+              value={selectedGame}
+              onValueChange={setSelectedGame}
+              placeholder="Choose an active game"
+            >
+              {games.map((game) => (
+                <SelectItem key={game.id} value={game.id}>
+                  {game.roomName} ({game.numbersCalledCount} called)
+                </SelectItem>
+              ))}
+            </SelectField>
 
-            <div className="space-y-2">
-              <Label htmlFor="manual-number">Manual Number Entry</Label>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="flex gap-2">
-                <Input
-                  id="manual-number"
-                  type="number"
-                  min="1"
-                  max="75"
-                  value={currentNumber}
-                  onChange={(e) => setCurrentNumber(e.target.value)}
-                  placeholder="Enter 1-75"
-                />
-                <Button onClick={handleManualCall} disabled={!selectedGame || isLoading}>
-                  Call
+                <div className="flex-1">
+                  <InputField
+                    label="Manual Number Entry"
+                    type="number"
+                    min="1"
+                    max="75"
+                    placeholder="Enter 1-75"
+                    {...register("number", { valueAsNumber: true })}
+                    error={errors.number?.message}
+                  />
+                </div>
+                <Button type="submit" disabled={!selectedGame || isSubmitting || isLoading} className="mt-8">
+                  {isSubmitting ? "Calling..." : "Call"}
                 </Button>
               </div>
-            </div>
+            </form>
 
             <Button onClick={generateRandomNumber} disabled={!selectedGame || isLoading} className="w-full">
               Call Random Number

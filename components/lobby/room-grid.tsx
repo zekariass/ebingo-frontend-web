@@ -4,6 +4,8 @@ import { useMemo } from "react"
 import { useLobbyStore } from "@/lib/stores/lobby-store"
 import type { Room } from "@/lib/types"
 import { RoomCarousel } from "./room-carousel"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion"
+import { ChevronDown } from "lucide-react"
 
 interface RoomGridProps {
   rooms: Room[]
@@ -92,14 +94,40 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
 
   return (
     <div className="space-y-8">
-      {testRooms.length > 0 && (
+      {/* {testRooms.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold">🧪 Test Room</h2>
+            <h2 className="text-2xl font-bold">Test Room</h2>
             <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">Demo Mode</span>
           </div>
           <RoomCarousel fee={10} rooms={testRooms} />
         </div>
+      )} */}
+
+      {testRooms.length > 0 && (
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full rounded-2xl border border-gray-400 dark:bg-gray-600 shadow-sm"
+        >
+          <AccordionItem value="test-room" className="border-b-0">
+            <AccordionTrigger className="flex items-center justify-between px-4 py-3 text-left">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-gray-900">Practice Room</h2>
+                {/* <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                  Demo Mode
+                </span> */}
+              </div>
+              {/* Chevron indicator */}
+              <div className="flex justify-end">
+                <ChevronDown className="h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 accordion-trigger-icon" />
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <RoomCarousel fee={10} rooms={testRooms} />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       )}
 
       {roomsByFee.length > 0 && (

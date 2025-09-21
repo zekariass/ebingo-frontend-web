@@ -11,6 +11,7 @@ import { NumberCallingArea } from "./number-calling-area"
 import { GameControls } from "./game-controls"
 import { WinnerBanner } from "./winner-banner"
 import { generateBingoCard } from "@/lib/utils/bingo"
+import { useTranslation } from "react-i18next"
 
 interface RoomViewProps {
   roomId: string
@@ -21,13 +22,15 @@ export function RoomView({ roomId }: RoomViewProps) {
 
   const { connected, requestSnapshot, joinRoom } = useWebSocketEvents({ roomId })
 
+  const {t, i18n} = useTranslation("common")
+
   useEffect(() => {
     initializeRoom(roomId)
 
     // Mock room data - TODO: Replace with actual API call
     const mockRoom = {
       id: roomId,
-      name: `$${roomId.includes("10") ? "10" : roomId.includes("20") ? "20" : roomId.includes("50") ? "50" : "100"} Bingo Room`,
+      name: `$${roomId.includes("10") ? "10" : roomId.includes("20") ? "20" : roomId.includes("50") ? "50" : "100"} ${t("bingo_room")}`,
       fee: Number.parseInt(
         roomId.includes("10") ? "10" : roomId.includes("20") ? "20" : roomId.includes("50") ? "50" : "100",
       ),
@@ -38,7 +41,7 @@ export function RoomView({ roomId }: RoomViewProps) {
     }
 
     if (roomId === "test-room-1") {
-      mockRoom.name = "Free Practice Room"
+      mockRoom.name = t('practice_room')
       mockRoom.fee = 0
     }
 

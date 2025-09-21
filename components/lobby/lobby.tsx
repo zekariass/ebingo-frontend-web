@@ -17,8 +17,8 @@ export function Lobby() {
     fetchRooms()
 
     // Refresh rooms every 30 seconds
-    const interval = setInterval(fetchRooms, 30000)
-    return () => clearInterval(interval)
+    // const interval = setInterval(fetchRooms, 30000)
+    // return () => clearInterval(interval)
   }, [fetchRooms])
 
   if (loading && rooms.length === 0) {
