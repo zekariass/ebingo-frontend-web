@@ -9,68 +9,62 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { ArrowUpRight, ArrowDownLeft, Trophy, CreditCard, RefreshCw, History } from "lucide-react"
-import type { Transaction } from "@/lib/types/payment"
+import { TransactionStatus, TransactionType } from "@/lib/types"
 
 export function TransactionHistory() {
-  const { transactions, setTransactions, getRecentTransactions, loading, setLoading, error, setError } =
+  const { transactions, setTransactions, getRecentTransactions, fetchTransactions, loading, setLoading, error, setError } =
     usePaymentStore()
 
   const refreshTransactions = async () => {
-    setLoading(true)
-    setError(null)
+    fetchTransactions(1, 10)
 
-    try {
-      const newTransactions = await paymentApiClient.getTransactions()
-      setTransactions(newTransactions)
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to load transactions")
-    } finally {
-      setLoading(false)
-    }
+  //   try {
+  //     const newTransactions = await paymentApiClient.getTransactions()
+  //     setTransactions(newTransactions)
+  //   } catch (error) {
+  //     setError(error instanceof Error ? error.message : "Failed to load transactions")
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
   }
 
-  useEffect(() => {
-    if (transactions.length === 0) {
-      refreshTransactions()
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (transactions.length === 0) {
+  //     refreshTransactions()
+  //   }
+  // }, [])
 
-  const getTransactionIcon = (type: Transaction["type"]) => {
+  const getTransactionIcon = (type: TransactionType) => {
     switch (type) {
-      case "deposit":
+      case "DEPOSIT":
         return <ArrowDownLeft className="h-4 w-4 text-green-600" />
-      case "withdrawal":
+      case "WITHDRAWAL":
         return <ArrowUpRight className="h-4 w-4 text-red-600" />
-      case "game_entry":
+      case "TRANSFER":
         return <CreditCard className="h-4 w-4 text-blue-600" />
-      case "prize_payout":
-        return <Trophy className="h-4 w-4 text-yellow-600" />
-      case "refund":
-        return <ArrowDownLeft className="h-4 w-4 text-green-600" />
       default:
         return <CreditCard className="h-4 w-4 text-gray-600" />
     }
   }
 
-  const getStatusColor = (status: Transaction["status"]) => {
+  const getStatusColor = (status: TransactionStatus) => {
     switch (status) {
-      case "completed":
+      case "COMPLETED":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      case "pending":
+      case "AWAITING_APPROVAL":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-      case "processing":
+      case "PENDING":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-      case "failed":
+      case "FAILED":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-      case "cancelled":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
     }
   }
 
-  const formatAmount = (amount: number, type: Transaction["type"]) => {
-    const isPositive = amount > 0 || type === "deposit" || type === "prize_payout" || type === "refund"
+  const formatAmount = (amount: number, type: TransactionType) => {
+    const isPositive = amount > 0 || type === "DEPOSIT"
     const prefix = isPositive ? "+" : ""
     const color = isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
 
@@ -127,7 +121,7 @@ export function TransactionHistory() {
                 <div key={transaction.id}>
                   <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-3">
-                      {getTransactionIcon(transaction.type)}
+                      {getTransactionIcon(transaction.txnType)}
                       <div>
                         <p className="font-medium text-sm">{transaction.description}</p>
                         <div className="flex items-center gap-2 mt-1">
@@ -139,7 +133,7 @@ export function TransactionHistory() {
                       </div>
                     </div>
 
-                    <div className="text-right">{formatAmount(transaction.amount, transaction.type)}</div>
+                    <div className="text-right">{formatAmount(transaction.txnAmount, transaction.txnType)}</div>
                   </div>
 
                   {index < recentTransactions.length - 1 && <Separator />}

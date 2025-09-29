@@ -22,9 +22,12 @@ import { useAdminStore } from "@/lib/stores/admin-store"
 import { InputField, SelectField } from "@/components/ui/form-fields"
 import { roomPatterns, roomSchema, roomStatuses, type RoomFormData } from "@/lib/schemas/admin-schemas"
 import { stat } from "fs"
+import { useGameStore } from "@/lib/stores/game-store"
 
 export function AdminRooms() {
   const { rooms, isLoading, error, createRoom, updateRoom, deleteRoom, loadRooms } = useAdminStore()
+const resetGameState = useGameStore(state => state.resetGameState);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingRoom, setEditingRoom] = useState<any>(null)
 
@@ -78,6 +81,14 @@ export function AdminRooms() {
       status: room.status
     })
     setIsCreateDialogOpen(true)
+  }
+
+
+  const handleDelete = async (roomId: number) => {
+    if (confirm("Are you sure you want to delete this room? This action cannot be undone.")) {
+      await deleteRoom(roomId);
+      resetGameState(); // Reset game state after deleting a room
+    }
   }
 
   const handleCancel = () => {
@@ -309,7 +320,7 @@ export function AdminRooms() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => deleteRoom(room.id)}
+                        onClick={() => handleDelete(room.id)}
                         disabled={isLoading}
                         className="h-8 w-8 p-0"
                       >

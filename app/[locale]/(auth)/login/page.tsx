@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/hooks/use-session';
+import i18n from '@/i18n';
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -22,7 +23,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const res = await fetch('/api/auth/login', {
+            const res = await fetch(`/${i18n.language}/api/auth/login`, {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
                 headers: { 'Content-Type': 'application/json' },

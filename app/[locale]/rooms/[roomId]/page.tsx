@@ -1,7 +1,7 @@
 import { RoomView } from "@/components/room/room-view"
 
 interface RoomPageProps {
-  params: Promise<{ roomId: string }>
+  params: Promise<{ roomId: number }>
 }
 
 export default async function RoomPage({ params }: RoomPageProps) {

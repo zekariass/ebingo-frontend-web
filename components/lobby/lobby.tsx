@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useLobbyStore } from "@/lib/stores/lobby-store"
 import { useRoomStore } from "@/lib/stores/room-store"
 import { LobbyHeader } from "./lobby-header"
@@ -8,10 +8,20 @@ import { LobbyFilters } from "./lobby-filters"
 import { RoomGrid } from "./room-grid"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { usePaymentStore } from "@/lib/stores/payment-store"
+import { useUserProfile } from "@/hooks/use-user-profile"
+import { userStore } from "@/lib/stores/user-store"
 
 export function Lobby() {
   const { rooms, loading, error, fetchRooms } = useLobbyStore()
-  const { balance } = useRoomStore()
+  const {fetchPaymentMethods, fetchTransactions, fetchWallet} = usePaymentStore()
+  const { fetchUserProfile} = userStore()
+
+  const [currentTxnPage, setCurrentTxnPage] = useState<number>(1)
+  const [currentTxnSize, setCurrentTxnSize] = useState<number>(10)
+
+  // const {} = useUserProfile()
+  // const { balance } = useRoomStore()
 
   useEffect(() => {
     fetchRooms()
@@ -21,7 +31,23 @@ export function Lobby() {
     // return () => clearInterval(interval)
   }, [fetchRooms])
 
-  if (loading && rooms.length === 0) {
+
+  // Fetch all payment data
+  async function fetchPaymentData() {
+    await Promise.all([
+      fetchUserProfile(),
+      fetchWallet(),
+      fetchPaymentMethods(),
+      fetchTransactions(currentTxnPage, currentTxnSize),
+    ])  
+  }
+
+
+  useEffect(() => {
+    fetchPaymentData()
+  }, [])
+
+  if (loading && rooms && rooms.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <LobbyHeader />

@@ -41,16 +41,16 @@ export function WithdrawDialog({ open, onOpenChange }: WithdrawDialogProps) {
     resolver: zodResolver(withdrawSchema),
     defaultValues: {
       amount: 50,
-      paymentMethodId: getDefaultPaymentMethod()?.id || "",
+      paymentMethodId: getDefaultPaymentMethod()?.id || 0,
     },
   })
 
   const selectedAmount = watch("amount")
-  const maxWithdraw = Math.min(balance.available, 1000)
+  const maxWithdraw = Math.min(balance.totalAvailableBalance, 1000)
 
   const onSubmit = async (data: WithdrawForm) => {
-    if (data.amount > balance.available) {
-      console.error(`Insufficient Balance: You can only withdraw up to $${balance.available.toFixed(2)}`)
+    if (data.amount > balance.totalAvailableBalance) {
+      console.error(`Insufficient Balance: You can only withdraw up to $${balance.totalAvailableBalance?.toFixed(2)}`)
       return
     }
 
@@ -66,8 +66,8 @@ export function WithdrawDialog({ open, onOpenChange }: WithdrawDialogProps) {
         // Update balance
         const newBalance = {
           ...balance,
-          available: balance.available - data.amount,
-          total: balance.total - data.amount,
+          available: balance.totalAvailableBalance - data.amount,
+          total: balance.totalAvailableBalance - data.amount,
         }
         setBalance(newBalance)
 
@@ -150,18 +150,18 @@ export function WithdrawDialog({ open, onOpenChange }: WithdrawDialogProps) {
 
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Available to withdraw:</span>
-                  <span className="font-semibold">${balance.available.toFixed(2)}</span>
+                  <span className="font-semibold">${balance.totalAvailableBalance?.toFixed(2)}</span>
                 </div>
 
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setValue("amount", balance.available)}
-                  disabled={balance.available <= 0}
+                  onClick={() => setValue("amount", balance.totalAvailableBalance)}
+                  disabled={balance.totalAvailableBalance <= 0}
                   className="w-full bg-transparent"
                 >
-                  Withdraw All (${balance.available.toFixed(2)})
+                  Withdraw All (${balance.totalAvailableBalance?.toFixed(2)})
                 </Button>
               </div>
             </div>
@@ -174,7 +174,7 @@ export function WithdrawDialog({ open, onOpenChange }: WithdrawDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((method) => (
-                    <SelectItem key={method.id} value={method.id}>
+                    <SelectItem key={method.id} value={method.id?.toString()}>
                       <div className="flex items-center gap-2">
                         <CreditCard className="h-4 w-4" />
                         {getPaymentMethodDisplay(method)}
@@ -216,7 +216,7 @@ export function WithdrawDialog({ open, onOpenChange }: WithdrawDialogProps) {
             <Button
               type="submit"
               className="flex-1"
-              disabled={isProcessing || paymentMethods.length === 0 || (selectedAmount || 0) > balance.available}
+              disabled={isProcessing || paymentMethods.length === 0 || (selectedAmount || 0) > balance.totalAvailableBalance}
             >
               {isProcessing ? (
                 <>

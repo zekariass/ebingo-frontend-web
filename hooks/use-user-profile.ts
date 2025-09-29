@@ -2,43 +2,21 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { useSession } from './use-session';
-import { Big } from 'big.js';
+import { ApiResponse, UserProfile } from '@/lib/types';
+import i18n from '@/i18n';
 
-export interface UserProfile {
-  id: number;
-  supabaseId: string;
-  firstName: string;
-  lastName: string;
-  nickName?: string | null;
-  email: string;
-  phone?: string | null;
-  balance: Big;
-  status: 'ACTIVE' | 'BANNED';
-  role: 'ADMIN' | 'PLAYER';
-  freePlayCount?: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
-export type ApiResponse<T> = {
-  success: boolean;
-  statusCode: number;
-  message?: string;
-  error?: string;
-  errors?: Record<string, string>;
-  path?: string;
-  data?: T;
-  timestamp?: string;
-};
 
 async function fetchUserProfile(accessToken: string): Promise<UserProfile | undefined> {
-  const res = await fetch(`/api/auth/me`, {
+  const res = await fetch(`${i18n.language}/api/auth/me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   if (!res.ok) throw new Error('Failed to fetch profile');
 
   const data: ApiResponse<UserProfile> = await res.json();
+  
+  if (!data.success) throw new Error(data.error || 'Failed to fetch profile');
 
 
   return data.data; // may be undefined

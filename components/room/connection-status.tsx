@@ -1,13 +1,13 @@
 "use client"
 
-import { useWebSocketEvents } from "@/lib/hooks/use-websocket-events"
+import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Wifi, WifiOff, AlertCircle, RefreshCw } from "lucide-react"
 
 interface ConnectionStatusProps {
-  roomId: string
+  roomId: number
 }
 
 export function ConnectionStatus({ roomId }: ConnectionStatusProps) {

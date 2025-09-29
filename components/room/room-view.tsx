@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useRoomStore } from "@/lib/stores/room-store"
-import { useWebSocketEvents } from "@/lib/hooks/use-websocket-events"
+import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { RoomHeader } from "./room-header"
 import { ConnectionStatus } from "./connection-status"
 import { CardSelectionGrid } from "./card-selection-grid"
@@ -10,57 +10,29 @@ import { SelectedCardsPanel } from "./selected-cards-panel"
 import { NumberCallingArea } from "./number-calling-area"
 import { GameControls } from "./game-controls"
 import { WinnerBanner } from "./winner-banner"
-import { generateBingoCard } from "@/lib/utils/bingo"
+// import { generateBingoCard } from "@/lib/utils/bingo"
 import { useTranslation } from "react-i18next"
+import { useGameStore } from "@/lib/stores/game-store"
 
 interface RoomViewProps {
-  roomId: string
+  roomId: number
 }
 
 export function RoomView({ roomId }: RoomViewProps) {
-  const { room, game, selectedCardIds, userCards, setRoom, setUserCards, initializeRoom } = useRoomStore()
+  const { room, fetchRoom, resetRoom, getRoomFromLobby, setRoom, initializeRoom } = useRoomStore()
+  const {game: {userSelectedCardsIds, winner}, } = useGameStore()
 
-  const { connected, requestSnapshot, joinRoom } = useWebSocketEvents({ roomId })
+  // const { connected, enterRoom } = useWebSocketEvents({ roomId })
 
-  const {t, i18n} = useTranslation("common")
-
-  useEffect(() => {
-    initializeRoom(roomId)
-
-    // Mock room data - TODO: Replace with actual API call
-    const mockRoom = {
-      id: roomId,
-      name: `$${roomId.includes("10") ? "10" : roomId.includes("20") ? "20" : roomId.includes("50") ? "50" : "100"} ${t("bingo_room")}`,
-      fee: Number.parseInt(
-        roomId.includes("10") ? "10" : roomId.includes("20") ? "20" : roomId.includes("50") ? "50" : "100",
-      ),
-      players: Math.floor(Math.random() * 80) + 10,
-      capacity: 100,
-      status: "open" as const,
-      nextStartAt: new Date(Date.now() + 120000).toISOString(),
-    }
-
-    if (roomId === "test-room-1") {
-      mockRoom.name = t('practice_room')
-      mockRoom.fee = 0
-    }
-
-    setRoom(mockRoom)
-  }, [roomId, initializeRoom, setRoom])
+  // const {t, i18n} = useTranslation("common")
+  console.log("=============================>>>> RoomView Rendered with selected cards:", userSelectedCardsIds)
 
   useEffect(() => {
-    // Generate user cards when cards are selected but userCards is empty
-    if (selectedCardIds.length > 0 && userCards.length !== selectedCardIds.length) {
-      const cards = selectedCardIds.map((id) => generateBingoCard(id))
-      setUserCards(cards)
-    }
-  }, [selectedCardIds, userCards.length, setUserCards])
+    resetRoom()
+    fetchRoom(roomId)
+    // getRoomFromLobby(roomId)
+  }, [roomId, fetchRoom])
 
-  useEffect(() => {
-    if (connected && room) {
-      requestSnapshot()
-    }
-  }, [connected, room, requestSnapshot])
 
   if (!room) {
     return (
@@ -70,7 +42,7 @@ export function RoomView({ roomId }: RoomViewProps) {
     )
   }
 
-  const isPracticeRoom = roomId === "test-room-1"
+  // const isPracticeRoom = roomId === "test-room-1"
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,7 +66,7 @@ export function RoomView({ roomId }: RoomViewProps) {
           <div className="lg:col-span-2 space-y-3 sm:space-y-6">
             <CardSelectionGrid roomId={roomId} capacity={room.capacity} />
 
-            {selectedCardIds.length > 0 && (
+            {userSelectedCardsIds.length > 0 && (
               <div className="space-y-3 sm:space-y-4">
                 <SelectedCardsPanel />
                 <GameControls />
@@ -109,7 +81,7 @@ export function RoomView({ roomId }: RoomViewProps) {
         </div>
       </main>
 
-      {game?.winners && game.winners.length > 0 && <WinnerBanner winners={game.winners} />}
+      {winner && <WinnerBanner winner={winner} />}
     </div>
   )
 }

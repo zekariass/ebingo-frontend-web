@@ -22,6 +22,8 @@ class ApiClient {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`
 
+    console.log("========================= URLLLLLL: "+ url)
+
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +89,7 @@ class ApiClient {
     return this.request<{ balance: number }>("/users/balance")
   }
 
-  async getTransactionHistory(page = 1, limit = 20): Promise<{ transactions: Transaction[]; total: number }> {
+  async getnHistory(page = 1, limit = 20): Promise<{ transactions: Transaction[]; total: number }> {
     return this.request<{ transactions: Transaction[]; total: number }>(
       `/users/transactions?page=${page}&limit=${limit}`,
     )
@@ -109,19 +111,19 @@ class ApiClient {
     })
   }
 
-  async joinRoom(data: JoinRoomRequest): Promise<void> {
-    return this.request<void>(`/rooms/${data.roomId}/join`, {
-      method: "POST",
-      body: JSON.stringify({ cardIds: data.cardIds }),
-    })
-  }
+  // async joinRoom(data: JoinRoomRequest): Promise<void> {
+  //   return this.request<void>(`/rooms/${data.roomId}/join`, {
+  //     method: "POST",
+  //     body: JSON.stringify({ cardIds: data.cardIds }),
+  //   })
+  // }
 
   // Room management endpoints
-  async leaveRoom(roomId: string): Promise<void> {
-    return this.request<void>(`/rooms/${roomId}/leave`, {
-      method: "POST",
-    })
-  }
+  // async leaveRoom(roomId: string): Promise<void> {
+  //   return this.request<void>(`/rooms/${roomId}/leave`, {
+  //     method: "POST",
+  //   })
+  // }
 
   async getRoomPlayers(roomId: string): Promise<{ players: User[] }> {
     return this.request<{ players: User[] }>(`/rooms/${roomId}/players`)
@@ -136,48 +138,48 @@ class ApiClient {
     return this.request<GameState>(`/game/${roomId}/state`)
   }
 
-  async startGame(
-    roomId: string,
-    gameData?: { userBalance: number; selectedCards: any[]; totalCost: number },
-  ): Promise<{ success: boolean; gameId: string; newBalance?: number }> {
-    return this.request<{ success: boolean; gameId: string; newBalance?: number }>(`/game/${roomId}/start`, {
-      method: "POST",
-      body: gameData ? JSON.stringify(gameData) : undefined,
-    })
-  }
+  // async startGame(
+  //   roomId: number,
+  //   gameData?: { userBalance: number; selectedCards: any[]; totalCost: number },
+  // ): Promise<{ success: boolean; gameId: string; newBalance?: number }> {
+  //   return this.request<{ success: boolean; gameId: string; newBalance?: number }>(`/game/${roomId}/start`, {
+  //     method: "POST",
+  //     body: gameData ? JSON.stringify(gameData) : undefined,
+  //   })
+  // }
 
-  async endGame(roomId: string): Promise<{ success: boolean; winners: string[] }> {
-    return this.request<{ success: boolean; winners: string[] }>(`/game/${roomId}/end`, {
-      method: "POST",
-    })
-  }
+  // async endGame(roomId: string): Promise<{ success: boolean; winners: string[] }> {
+  //   return this.request<{ success: boolean; winners: string[] }>(`/game/${roomId}/end`, {
+  //     method: "POST",
+  //   })
+  // }
 
-  async callNumber(roomId: string): Promise<{ number: number; letter: string }> {
-    return this.request<{ number: number; letter: string }>(`/game/${roomId}/call`, {
-      method: "POST",
-    })
-  }
+  // async callNumber(roomId: string): Promise<{ number: number; letter: string }> {
+  //   return this.request<{ number: number; letter: string }>(`/game/${roomId}/call`, {
+  //     method: "POST",
+  //   })
+  // }
 
-  async markCard(roomId: string, cardId: string, position: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(`/game/${roomId}/cards/${cardId}/mark`, {
-      method: "POST",
-      body: JSON.stringify({ position }),
-    })
-  }
+  // async markCard(roomId: string, cardId: string, position: string): Promise<{ success: boolean }> {
+  //   return this.request<{ success: boolean }>(`/game/${roomId}/cards/${cardId}/mark`, {
+  //     method: "POST",
+  //     body: JSON.stringify({ position }),
+  //   })
+  // }
 
-  async claimBingo(data: BingoClaimRequest): Promise<{ success: boolean; verified: boolean; prize?: number }> {
-    return this.request<{ success: boolean; verified: boolean; prize?: number }>("/game/bingo", {
-      method: "POST",
-      body: JSON.stringify(data),
-    })
-  }
+  // async claimBingo(data: BingoClaimRequest): Promise<{ success: boolean; verified: boolean; prize?: number }> {
+  //   return this.request<{ success: boolean; verified: boolean; prize?: number }>("/game/bingo", {
+  //     method: "POST",
+  //     body: JSON.stringify(data),
+  //   })
+  // }
 
-  async verifyBingo(roomId: string, cardId: string, pattern: string): Promise<{ valid: boolean; pattern: string }> {
-    return this.request<{ valid: boolean; pattern: string }>(`/game/${roomId}/verify`, {
-      method: "POST",
-      body: JSON.stringify({ cardId, pattern }),
-    })
-  }
+  // async verifyBingo(roomId: string, cardId: string, pattern: string): Promise<{ valid: boolean; pattern: string }> {
+  //   return this.request<{ valid: boolean; pattern: string }>(`/game/${roomId}/verify`, {
+  //     method: "POST",
+  //     body: JSON.stringify({ cardId, pattern }),
+  //   })
+  // }
 
   // Payment endpoints
   async chargePayment(data: ChargeRequest): Promise<{ success: boolean; transactionId: string }> {

@@ -2,14 +2,14 @@
 
 import { useEffect } from "react"
 import { useRoomStore } from "@/lib/stores/room-store"
-import { useWebSocketEvents } from "@/lib/hooks/use-websocket-events"
+import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { useGameSimulation } from "@/lib/hooks/use-game-simulation"
 import { GameHeader } from "./game-header"
 import { NumberGrid } from "./number-grid"
 import { GameCards } from "./game-cards"
 
 interface GameViewProps {
-  roomId: string
+  roomId: number
 }
 
 export function GameView({ roomId }: GameViewProps) {

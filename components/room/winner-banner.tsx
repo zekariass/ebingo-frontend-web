@@ -1,6 +1,6 @@
 "use client"
 
-import type { Winner } from "@/lib/types"
+import type { GameWinner } from "@/lib/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,15 +9,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 
 interface WinnerBannerProps {
-  winners: Winner[]
+  winner: GameWinner | null
 }
 
-export function WinnerBanner({ winners }: WinnerBannerProps) {
+export function WinnerBanner({ winner }: WinnerBannerProps) {
   const [isVisible, setIsVisible] = useState(true)
 
-  if (!isVisible || winners.length === 0) return null
-
-  const totalPrize = winners.reduce((sum, winner) => sum + winner.prizeAmount, 0)
+  if (!isVisible || !winner) return null
 
   return (
     <AnimatePresence>
@@ -31,37 +29,33 @@ export function WinnerBanner({ winners }: WinnerBannerProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
+                {/* Trophy icon */}
                 <div className="flex items-center justify-center w-12 h-12 bg-yellow-500 rounded-full">
                   <Trophy className="h-6 w-6 text-white" />
                 </div>
 
+                {/* Winner details */}
                 <div>
                   <h3 className="text-xl font-bold text-yellow-800 dark:text-yellow-200">
-                    🎉 BINGO WINNER{winners.length > 1 ? "S" : ""}! 🎉
+                    🎉 BINGO WINNER! 🎉
                   </h3>
-                  <div className="space-y-1">
-                    {winners.map((winner, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm">
-                        <span className="font-semibold">{winner.playerName}</span>
-                        <Badge variant="outline">Card #{winner.cardId}</Badge>
-                        <Badge variant="secondary">
-                          {typeof winner.pattern === "string" ? winner.pattern : winner.pattern?.name || "Unknown"}
-                        </Badge>
-                        <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                          <DollarSign className="h-3 w-3" />
-                          <span className="font-bold">{winner.prizeAmount.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {winners.length > 1 && (
-                    <div className="mt-2 text-lg font-bold text-green-600 dark:text-green-400">
-                      Total Prize Pool: ${totalPrize.toFixed(2)}
+                  <div className="flex items-center gap-2 text-sm mt-1">
+                    <span className="font-semibold">{winner.playerName}</span>
+                    <Badge variant="outline">Card #{winner.cardId}</Badge>
+                    <Badge variant="secondary">
+                      {typeof winner.pattern === "string"
+                        ? winner.pattern
+                        : winner.pattern || "Unknown"}
+                    </Badge>
+                    <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                      <DollarSign className="h-3 w-3" />
+                      <span className="font-bold">{winner.prizeAmount.toFixed(2)}</span>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
+              {/* Close button */}
               <Button variant="ghost" size="sm" onClick={() => setIsVisible(false)}>
                 <X className="h-4 w-4" />
               </Button>

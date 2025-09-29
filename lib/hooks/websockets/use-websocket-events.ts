@@ -1,0 +1,153 @@
+"use client"
+
+import { useCallback } from "react"
+import { useRoomSocket } from "./use-room-socket"
+import type { BingoClaimRequest } from "@/lib/types"
+import { useUserProfile } from "@/hooks/use-user-profile"
+import { useSession } from "@/hooks/use-session"
+import { useRoomStore } from "@/lib/stores/room-store"
+
+interface UseWebSocketEventsOptions {
+  roomId: number
+  enabled?: boolean
+}
+
+export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEventsOptions) {
+  const socket = useRoomSocket({ roomId, enabled })
+  // const { data } = useUserProfile()
+  const { session, user } = useSession()
+
+  const capacity = useRoomStore((state) => state.room?.capacity);
+
+
+  const enterRoom = useCallback(() => {
+    if (!socket || !roomId || !user?.id) return
+    socket.send({
+      type: "room.getGameStateRequest",
+      payload: { roomId, playerId: user?.id, capacity },
+    })
+
+  }, [roomId, user?.id])
+
+
+  // ✅ Reset player state in backend
+  const resetPlayerStateInBackend = useCallback(
+    (gameId: number) => {
+      if (!socket) return
+      socket.send({
+        type: "game.resetPlayerState",
+        payload: { gameId, playerId: user?.id },
+      })
+    },
+    [socket, user?.id]
+  )
+
+  // ✅ Join Game
+  const joinGame = useCallback(
+    (gameId: number, fee: number) => {
+      if (!socket) return
+      socket.send({
+        type: "game.playerJoinRequest",
+        payload: { roomId, gameId, fee },
+      })
+    },
+    [socket, roomId]
+  )
+
+  // ✅ Leave Game
+  const leaveGame = useCallback(
+    (gameId: number, playerId: number) => {
+      if (!socket) return
+      socket.send({
+        type: "game.playerLeaveRequest",
+        payload: { roomId, playerId, gameId },
+      })
+    },
+    [socket, roomId]
+  )
+
+  // ✅ Select Card
+  const selectCard = useCallback(
+    (gameId: number, cardId: string) => {
+      if (!socket) return
+      socket.send({
+        type: "card.cardSelectRequest",
+        payload: { gameId, cardId },
+      })
+    },
+    [socket]
+  )
+
+  // ✅ Release Card
+  const releaseCard = useCallback(
+    (gameId: number, cardId: string) => {
+      if (!socket) return
+      socket.send({
+        type: "card.cardReleaseRequest",
+        payload: { gameId, cardId },
+      })
+    },
+    [socket]
+  )
+
+  // ✅ Mark Number
+  const markNumber = useCallback(
+    (gameId: number, cardId: string, number: number) => {
+      if (!socket) return
+      socket.send({
+        type: "card.markNumberRequest",
+        payload: { gameId, cardId, number, playerId: user?.id },
+      })
+    },
+    [socket, user?.id]
+  )
+
+  // ✅ Unmark Number
+  const unmarkNumber = useCallback(
+    (gameId: number, cardId: string, number: number) => {
+      if (!socket) return
+      socket.send({
+        type: "card.unmarkNumberRequest",
+        payload: { gameId, cardId, number, playerId: user?.id },
+      })
+    },
+    [socket, user?.id]
+  )
+
+  // ✅ Claim Bingo
+  const claimBingo = useCallback(
+    (request: BingoClaimRequest) => {
+      if (!socket) return
+      socket.send({
+        type: "game.bingoClaimRequest",
+        payload: request,
+      })
+    },
+    [socket]
+  )
+
+  return {
+    // Socket state
+    connected: socket.connected,
+    connecting: socket.connecting,
+    error: socket.error,
+    latencyMs: socket.latencyMs,
+    reconnectAttempts: socket.reconnectAttempts,
+
+    // Socket actions
+    connect: socket.connect,
+    disconnect: socket.disconnect,
+    reconnect: socket.reconnect,
+
+    // Game actions
+    enterRoom,
+    resetPlayerStateInBackend,
+    joinGame,
+    leaveGame,
+    selectCard,
+    releaseCard,
+    markNumber,
+    unmarkNumber,
+    claimBingo,
+  }
+}

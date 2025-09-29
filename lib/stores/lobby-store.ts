@@ -1,6 +1,8 @@
 import { create } from "zustand"
 import type { Room } from "@/lib/types"
 import { apiClient } from "@/lib/api/client"
+import { useTheme } from "next-themes"
+import i18n from "@/i18n"
 
 interface LobbyState {
   rooms: Room[]
@@ -21,6 +23,10 @@ interface LobbyState {
   clearFilters: () => void
 }
 
+
+// const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;  
+
+
 export const useLobbyStore = create<LobbyState>((set, get) => ({
   rooms: [],
   loading: false,
@@ -35,11 +41,20 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
       filters: { ...state.filters, ...filters },
     })),
 
+
   fetchRooms: async () => {
+    
+    const urlPath = `/${i18n.language}/api/rooms`
+
     set({ loading: true, error: null })
     try {
-      const rooms = await apiClient.getRooms()
-      set({ rooms, loading: false })
+      // const rooms = await apiClient.getRooms()
+
+      const response = await fetch(`${urlPath}`);
+
+      const { success, data, error } = await response.json();
+
+      set({ rooms: data, loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : "Unknown error",

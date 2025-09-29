@@ -25,13 +25,14 @@ import { Button } from "../ui/button";
 import { ModeToggle } from "../mode-toggle";
 import { logout } from "../auth/logout";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { userStore } from "@/lib/stores/user-store";
+import { use } from "i18next";
 
 
 export default function HeaderUserDropdown() {
-    const { user, loading } = useSession();
-    const {data, isLoading, error} = useUserProfile();
-
-
+    // const { user, loading } = useSession();
+    const {user} = userStore();
+    // console.log("============USER DATA: firstname==================>>>User Profile Data:", user?.firstName);
 
     return (
         <DropdownMenu>
@@ -43,7 +44,7 @@ export default function HeaderUserDropdown() {
                     <Avatar className="h-10 w-10">
                         <AvatarImage src="/placeholder-user.png" alt="User" />
                         <AvatarFallback className="bg-gray-200 text-gray-700 font-semibold">
-                            JD
+                            {user?.firstName?.at(0) || "U"}
                         </AvatarFallback>
                     </Avatar>
                 </Button>
@@ -56,7 +57,7 @@ export default function HeaderUserDropdown() {
             >
                 <div className="flex items-center gap-2 p-3">
                     <div className="flex flex-col leading-none">
-                        <p className="font-medium">{data?.firstName}</p>
+                        <p className="font-medium">{user?.firstName}</p>
                         {/* <p className="w-[200px] truncate text-sm text-muted-foreground">
                             {user?.email}
                         </p> */}
@@ -71,7 +72,7 @@ export default function HeaderUserDropdown() {
                     <ModeToggle className="mr-2 h-4 w-4" />
                     <span>Theme</span>
                 </DropdownMenuItem> */}
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                     <FileText className="mr-2 h-4 w-4" />
                     <span>My Jobs</span>
                 </DropdownMenuItem>
@@ -86,7 +87,7 @@ export default function HeaderUserDropdown() {
                 <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />

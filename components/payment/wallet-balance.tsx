@@ -14,8 +14,8 @@ import { WithdrawDialog } from "./withdraw-dialog"
 import { useState } from "react"
 
 export function WalletBalance() {
-  const { balance, setBalance, loading, setLoading, error, setError } = usePaymentStore()
-  const { setBalance: setRoomBalance } = useRoomStore()
+  const { balance, setBalance, loading, setLoading, error, setError, fetchWallet } = usePaymentStore()
+  // const { setBalance: setRoomBalance } = useRoomStore()
   const [depositOpen, setDepositOpen] = useState(false)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
 
@@ -24,9 +24,8 @@ export function WalletBalance() {
     setError(null)
 
     try {
-      const newBalance = await paymentApiClient.getBalance()
-      setBalance(newBalance)
-      setRoomBalance(newBalance.available) // Sync with room store
+      fetchWallet()
+      // setRoomBalance(newBalance.available) // Sync with room store
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to refresh balance")
     } finally {
@@ -34,14 +33,14 @@ export function WalletBalance() {
     }
   }
 
-  useEffect(() => {
-    refreshBalance()
-  }, [])
+  // useEffect(() => {
+  //   refreshBalance()
+  // }, [])
 
   // Sync balance with room store
-  useEffect(() => {
-    setRoomBalance(balance.available)
-  }, [balance.available, setRoomBalance])
+  // useEffect(() => {
+  //   setRoomBalance(balance.available)
+  // }, [balance.available, setRoomBalance])
 
   return (
     <>
@@ -52,7 +51,7 @@ export function WalletBalance() {
               <Wallet className="h-5 w-5" />
               Wallet Balance
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={refreshBalance} disabled={loading}>
+            <Button variant="outline" size="sm" onClick={()=>refreshBalance()} disabled={loading}>
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
           </div>
@@ -63,11 +62,11 @@ export function WalletBalance() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Available</span>
               <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${balance.available.toFixed(2)}
+                ${balance.totalAvailableBalance?.toFixed(2)}
               </span>
             </div>
 
-            {balance.pending > 0 && (
+            {balance.totalAvailableBalance > 0 && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">
@@ -77,7 +76,7 @@ export function WalletBalance() {
                       Processing
                     </Badge>
                     <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                      ${balance.pending.toFixed(2)}
+                      ${balance.pendingBalance?.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -87,7 +86,7 @@ export function WalletBalance() {
             <Separator />
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Total Balance</span>
-              <span className="text-lg font-semibold">${balance.total.toFixed(2)}</span>
+              <span className="text-lg font-semibold">${balance.totalAvailableBalance?.toFixed(2)}</span>
             </div>
           </div>
 
@@ -105,7 +104,7 @@ export function WalletBalance() {
             <Button
               variant="outline"
               onClick={() => setWithdrawOpen(true)}
-              disabled={balance.available <= 0}
+              disabled={balance.totalAvailableBalance <= 0}
               className="flex items-center gap-2 bg-transparent"
             >
               <Minus className="h-4 w-4" />

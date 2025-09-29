@@ -1,12 +1,36 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { gameState } from "@/lib/backend/game-state"
 import type { ApiResponse } from "@/lib/backend/types"
 
-export async function GET(request: NextRequest, { params }: { params: { roomId: string } }) {
-  try {
-    const room = gameState.getRoom(params.roomId)
+const BACKEND_BASE_URL =
+  process.env.BACKEND_BASE_URL || "http://localhost:8080"
 
-    if (!room) {
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ roomId: string }> } // 👈 params is async now
+) {
+  try {
+    const { roomId } = await context.params; // 👈 await here
+
+    const backendRes = await fetch(
+      `${BACKEND_BASE_URL}/api/v1/public/rooms/${roomId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      }
+    )
+
+    if (!backendRes.ok) {
+      const response: ApiResponse = {
+        success: false,
+        error: `Backend returned ${backendRes.status}`,
+      }
+      return NextResponse.json(response, { status: backendRes.status })
+    }
+
+    const { data } = await backendRes.json()
+
+    if (!data) {
       const response: ApiResponse = {
         success: false,
         error: "Room not found",
@@ -16,16 +40,7 @@ export async function GET(request: NextRequest, { params }: { params: { roomId: 
 
     const response: ApiResponse = {
       success: true,
-      data: {
-        id: room.id,
-        name: room.name,
-        fee: room.fee,
-        players: room.players.length,
-        capacity: room.capacity,
-        status: room.status,
-        nextStartAt: room.nextStartAt,
-        availableCards: room.availableCards.length,
-      },
+      data,
       error: null,
     }
 

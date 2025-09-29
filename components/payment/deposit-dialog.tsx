@@ -12,10 +12,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CreditCard, DollarSign } from "lucide-react"
+import { PaymentMethod } from "@/lib/types"
 
 const depositSchema = z.object({
   amount: z.number().min(10, "Minimum deposit is $10").max(1000, "Maximum deposit is $1000"),
-  paymentMethodId: z.string().min(1, "Please select a payment method"),
+  paymentMethodId: z.number().min(1, "Please select a payment method"),
 })
 
 type DepositForm = z.infer<typeof depositSchema>
@@ -40,7 +41,7 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
     resolver: zodResolver(depositSchema),
     defaultValues: {
       amount: 50,
-      paymentMethodId: getDefaultPaymentMethod()?.id || "",
+      paymentMethodId: getDefaultPaymentMethod()?.id,
     },
   })
 
@@ -60,21 +61,22 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
         // Update balance
         const newBalance = {
           ...balance,
-          available: balance.available + data.amount,
-          total: balance.total + data.amount,
+          totalAvailableBalance: balance.totalAvailableBalance + data.amount,
+          depositBalance: balance.depositBalance + data.amount,
         }
         setBalance(newBalance)
 
         // Add transaction record
         addTransaction({
           id: result.transactionId!,
-          type: "deposit",
-          amount: data.amount,
-          status: "completed",
+          userProfileId: 1,
+          transferTo: null,
+          txnType: "DEPOSIT",
+          txnAmount: data.amount,
+          status: "COMPLETED",
           description: `Deposit via payment method`,
           createdAt: new Date().toISOString(),
-          completedAt: new Date().toISOString(),
-          paymentMethodId: data.paymentMethodId,
+          paymentMethodId: data.paymentMethodId
         })
 
         console.log(`Deposit Successful: $${data.amount.toFixed(2)} has been added to your wallet`)
@@ -91,19 +93,19 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
     }
   }
 
-  const getPaymentMethodDisplay = (method: any) => {
-    switch (method.type) {
-      case "credit_card":
-      case "debit_card":
-        return `${method.brand} ****${method.last4}`
-      case "paypal":
-        return "PayPal Account"
-      case "bank_account":
-        return `Bank ****${method.last4}`
-      default:
-        return method.nickname || method.type
-    }
-  }
+  // const getPaymentMethodDisplay = (method: PaymentMethod) => {
+  //   switch (method.) {
+  //     case "credit_card":
+  //     case "debit_card":
+  //       return `${method.brand} ****${method.last4}`
+  //     case "paypal":
+  //       return "PayPal Account"
+  //     case "bank_account":
+  //       return `Bank ****${method.last4}`
+  //     default:
+  //       return method.nickname || method.type
+  //   }
+  // }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -118,7 +120,7 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="amount">Amount</Label>
+              <Label htmlFor="amount" className="pb-3">Amount</Label>
               <div className="space-y-3">
                 <Input
                   id="amount"
@@ -136,7 +138,7 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
                     <Button
                       key={amount}
                       type="button"
-                      variant={selectedAmount === amount ? "default" : "outline"}
+                      variant={selectedAmount === amount ? "destructive" : "outline"}
                       size="sm"
                       onClick={() => setValue("amount", amount)}
                       className="bg-transparent"
@@ -149,17 +151,17 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
             </div>
 
             <div>
-              <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Select value={watch("paymentMethodId")} onValueChange={(value) => setValue("paymentMethodId", value)}>
+              <Label htmlFor="paymentMethod" className="pb-3">Payment Method</Label>
+              <Select value={watch("paymentMethodId")?.toString() ?? ""} onValueChange={(value) => setValue("paymentMethodId", Number(value))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((method) => (
-                    <SelectItem key={method.id} value={method.id}>
+                    <SelectItem key={method.id} value={method.id.toString()}>
                       <div className="flex items-center gap-2">
                         <CreditCard className="h-4 w-4" />
-                        {getPaymentMethodDisplay(method)}
+                        {method.name}
                         {method.isDefault && <span className="text-xs text-muted-foreground">(Default)</span>}
                       </div>
                     </SelectItem>

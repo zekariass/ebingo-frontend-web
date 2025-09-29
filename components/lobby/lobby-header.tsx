@@ -14,12 +14,15 @@ import LoginButton from "../auth/login-button"
 import SignupButton from "../auth/signup-button"
 import { LanguageSwitcher } from "../ui/language-switcher"
 import { DialogTitle } from "@radix-ui/react-dialog"
+import { userStore } from "@/lib/stores/user-store"
+import { UserRole } from "@/lib/types"
 
 export function LobbyHeader() {
   const [walletOpen, setWalletOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
 
   const {user, loading} = useSession();
+  const {user: dbUser} = userStore();
 
   return (
     <>
@@ -76,12 +79,12 @@ export function LobbyHeader() {
                 </DialogContent>
               </Dialog>
 
-              <Button variant="outline" size="sm" asChild>
+              {dbUser?.role === UserRole.ADMIN && <Button variant="outline" size="sm" asChild>
                 <Link href="/admin/rooms">
                   <Settings className="h-4 w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Admin</span>
                 </Link>
-              </Button>
+              </Button>}
               <HeaderUserDropdown />
               <Link href="/test">Test</Link>
               <ModeToggle />

@@ -2,6 +2,7 @@ export interface ApiResponse<T = any> {
   success: boolean
   data?: T
   error?: string | null
+  status?: number
 }
 
 export interface GamePlayer {

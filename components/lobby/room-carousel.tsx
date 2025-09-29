@@ -77,7 +77,7 @@ export function RoomCarousel({ fee, rooms }: RoomCarouselProps) {
         onScroll={checkScrollButtons}
       >
         {rooms.map((room) => (
-          <div key={room.id} className="flex-shrink-0 w-72 sm:w-80">
+          <div key={room.id} className="flex-shrink-0">
             <RoomCard room={room} />
           </div>
         ))}

@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { RoomFormData } from "../schemas/admin-schemas"
 import { log } from "console"
+import i18n from "@/i18n"
 
 interface AdminStats {
   activePlayers: number
@@ -442,11 +443,11 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   loadRooms: async () => {
     set({ isLoading: true, error: null })
     try {
-      const response = await fetch("/api/admin/rooms")
+      const response = await fetch(`/${i18n.language}/api/admin/rooms`)
       const result = await response.json()
 
       if (result.success) {
-        console.log("===================>: "+ JSON.stringify(result))
+        // console.log("===================>: "+ JSON.stringify(result))
         set({ rooms: result.data })
       } else {
         set({ error: result.error })

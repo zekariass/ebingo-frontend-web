@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { useBingoGameWebSocket } from "@/lib/hooks/use-bingo-game-websocket"
+import { useBingoGameWebSocket } from "@/lib/hooks/websockets/use-bingo-game-websocket"
 import type {
   GameStatePayload,
   NumberCalledPayload,

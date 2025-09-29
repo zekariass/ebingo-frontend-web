@@ -1,6 +1,6 @@
 "use client"
 
-import type { Room } from "@/lib/types"
+import type { GameState, Room } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CapacityBadge } from "@/components/lobby/capacity-badge"
@@ -9,6 +9,9 @@ import { useRoomStore } from "@/lib/stores/room-store"
 import { ArrowLeft, Wifi, WifiOff } from "lucide-react"
 import Link from "next/link"
 import { ConnectionStatus } from "./connection-status"
+import { useGameStore } from "@/lib/stores/game-store"
+import { useWebSocketContext } from "@/lib/contexts/websocket-context"
+import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 
 interface RoomHeaderProps {
   room: Room
@@ -16,31 +19,44 @@ interface RoomHeaderProps {
 
 export function RoomHeader({ room }: RoomHeaderProps) {
   const { connected, latencyMs } = useRoomStore()
+  const {game: {gameId, status, joinedPlayers, playersCount, countdown}} = useGameStore()
 
-  const getStatusColor = (status: Room["status"]) => {
+  const {resetPlayerStateInBackend} = useWebSocketEvents({roomId: room.id, enabled: true});
+  const { resetGameState } = useGameStore();
+
+  const getStatusColor = (status: GameState["status"]) => {
     switch (status) {
-      case "open":
+      case "READY":
         return "bg-green-500"
-      case "starting":
+      case "COUNTDOWN":
         return "bg-yellow-500"
-      case "in-game":
+      case "PLAYING":
+        return "bg-blue-500"
+      case "COMPLETED":
         return "bg-red-500"
       default:
         return "bg-gray-500"
     }
   }
 
-  const getStatusText = (status: Room["status"]) => {
+  const getStatusText = (status: GameState["status"]) => {
     switch (status) {
-      case "open":
+      case "READY":
         return "Open for Players"
-      case "starting":
+      case "COUNTDOWN":
         return "Starting Soon"
-      case "in-game":
+      case "PLAYING":
         return "Game in Progress"
+      case "COMPLETED":
+        return "Game Ended"
       default:
         return "Unknown"
     }
+  }
+
+  const handleBackArrowClick = () => {
+    // resetPlayerStateInBackend(gameId);
+    resetGameState();
   }
 
   return (
@@ -49,7 +65,7 @@ export function RoomHeader({ room }: RoomHeaderProps) {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/">
+              <Link href="/" onClick={()=> handleBackArrowClick()}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Back to Lobby</span>
                 <span className="sm:hidden">Back</span>
@@ -60,28 +76,28 @@ export function RoomHeader({ room }: RoomHeaderProps) {
               <h1 className="text-sm sm:text-lg lg:text-xl font-bold truncate">{room.name}</h1>
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-muted-foreground">
                 <span className="truncate">ID: {room.id}</span>
-                <span>${room.fee}</span>
+                <span>${room.entryFee}</span>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-2 text-right shrink-0">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className={`${getStatusColor(room.status)} text-white border-0 text-xs`}>
-                <span className="hidden sm:inline">{getStatusText(room.status)}</span>
+              <Badge variant="secondary" className={`${getStatusColor(status)} text-white border-0 text-xs`}>
+                <span className="hidden sm:inline">{getStatusText(status)}</span>
                 <span className="sm:hidden">
-                  {room.status === "open" ? "Open" : room.status === "starting" ? "Starting" : "In Game"}
+                  {status === "READY" ? "Open" : status === "COUNTDOWN" ? "Starting soon" : "Game in progress"}
                 </span>
               </Badge>
-              <CapacityBadge current={room.players} max={room.capacity} />
+              <CapacityBadge current={playersCount} max={room.capacity} />
             </div>
 
-            {room.nextStartAt && (
+            {/* {status === "COUNTDOWN" && countdown > 0  && (
               <CountdownTimer
-                targetTime={room.nextStartAt}
+                targetTime={countdown}
                 label={<span className="hidden sm:inline">Next game starts in</span>}
               />
-            )}
+            )} */}
 
             {/* <div className="flex items-center gap-2 text-xs">
               {connected ? (

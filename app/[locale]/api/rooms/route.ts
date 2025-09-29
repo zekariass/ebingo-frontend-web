@@ -1,69 +1,67 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { gameState } from "@/lib/backend/game-state"
+// import { gameState } from "@/lib/backend/game-state"
 import type { ApiResponse } from "@/lib/backend/types"
+import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;
+
+export async function GET(request: NextRequest) {
+  console.log("========================= GET ROOMS CALLED")
   try {
-    const rooms = gameState.getAllRooms().map((room) => ({
-      id: room.id,
-      name: room.name,
-      fee: room.fee,
-      players: room.players.length,
-      capacity: room.capacity,
-      status: room.status,
-      nextStartAt: room.nextStartAt,
-    }))
+    // Call backend API to fetch rooms
+    const response = await fetch(`${BACKEND_BASE_URL}/api/v1/public/rooms`);
 
-    const response: ApiResponse = {
-      success: true,
-      data: rooms,
-      error: null,
+    const result = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json({ error: result?.error || "Backend error" }, { status: response.status });
     }
 
-    return NextResponse.json(response)
-  } catch (error) {
-    const response: ApiResponse = {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-    return NextResponse.json(response, { status: 500 })
+  // console.log("========================= GET ROOMS CALLED", JSON.stringify(result))
+    
+
+    return NextResponse.json({ success: true, data: result.data });
+  } catch (err) {
+    console.error("Admin rooms error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { name, fee, capacity, nextStartAt } = body
 
-    if (!name || !fee || !capacity) {
-      const response: ApiResponse = {
-        success: false,
-        error: "Missing required fields: name, fee, capacity",
-      }
-      return NextResponse.json(response, { status: 400 })
-    }
+// export async function POST(request: NextRequest) {
+//   try {
+//     const body = await request.json()
+//     const { name, fee, capacity, nextStartAt } = body
 
-    const roomId = `room_${Date.now()}`
-    const room = gameState.createRoom({
-      id: roomId,
-      name,
-      fee,
-      capacity,
-      nextStartAt,
-    })
+//     if (!name || !fee || !capacity) {
+//       const response: ApiResponse = {
+//         success: false,
+//         error: "Missing required fields: name, fee, capacity",
+//       }
+//       return NextResponse.json(response, { status: 400 })
+//     }
 
-    const response: ApiResponse = {
-      success: true,
-      data: room,
-      error: null,
-    }
+//     const roomId = `room_${Date.now()}`
+//     const room = gameState.createRoom({
+//       id: roomId,
+//       name,
+//       fee,
+//       capacity,
+//       nextStartAt,
+//     })
 
-    return NextResponse.json(response, { status: 201 })
-  } catch (error) {
-    const response: ApiResponse = {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-    return NextResponse.json(response, { status: 500 })
-  }
-}
+//     const response: ApiResponse = {
+//       success: true,
+//       data: room,
+//       error: null,
+//     }
+
+//     return NextResponse.json(response, { status: 201 })
+//   } catch (error) {
+//     const response: ApiResponse = {
+//       success: false,
+//       error: error instanceof Error ? error.message : "Unknown error",
+//     }
+//     return NextResponse.json(response, { status: 500 })
+//   }
+// }

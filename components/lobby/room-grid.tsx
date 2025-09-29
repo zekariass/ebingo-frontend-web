@@ -20,7 +20,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
   const filteredRooms = useMemo(() => {
     return safeRooms.filter((room) => {
       // Fee filter
-      if (filters.fee && room.fee !== filters.fee) {
+      if (filters.fee && room.entryFee !== filters.fee) {
         return false
       }
 
@@ -39,19 +39,19 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
     })
   }, [safeRooms, filters])
 
-  const { testRooms, regularRooms } = useMemo(() => {
-    const test = filteredRooms.filter((room) => room.id === "test-room-1")
-    const regular = filteredRooms.filter((room) => room.id !== "test-room-1")
-    return { testRooms: test, regularRooms: regular }
+  const { practiceRooms, regularRooms } = useMemo(() => {
+    const test = filteredRooms.filter((room) => room.isForPractice)
+    const regular = filteredRooms.filter((room) => !room.isForPractice)
+    return { practiceRooms: test, regularRooms: regular }
   }, [filteredRooms])
 
   const roomsByFee = useMemo(() => {
     const grouped = regularRooms.reduce(
       (acc, room) => {
-        if (!acc[room.fee]) {
-          acc[room.fee] = []
+        if (!acc[room.entryFee]) {
+          acc[room.entryFee] = []
         }
-        acc[room.fee].push(room)
+        acc[room.entryFee].push(room)
         return acc
       },
       {} as Record<number, Room[]>,
@@ -64,13 +64,14 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
         fee: Number.parseInt(fee),
         rooms: rooms.sort((a, b) => {
           // Sort by status priority: open > starting > in-game
-          const statusPriority = { open: 0, starting: 1, "in-game": 2 }
+          const statusPriority = { OPEN: 0, CLOSED: 1}
           const aPriority = statusPriority[a.status]
           const bPriority = statusPriority[b.status]
-          if (aPriority !== bPriority) return aPriority - bPriority
+          // if (aPriority !== bPriority) return aPriority - bPriority
+          return aPriority - bPriority
 
           // Then by occupancy (less full first for open rooms)
-          return a.players / a.capacity - b.players / b.capacity
+          // return a / a.capacity - b.players / b.capacity
         }),
       }))
   }, [regularRooms])
@@ -83,7 +84,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
     )
   }
 
-  if (testRooms.length === 0 && roomsByFee.length === 0) {
+  if (practiceRooms.length === 0 && roomsByFee.length === 0) {
     return (
       <div className="text-center py-12">
         <h3 className="text-lg font-semibold text-muted-foreground">No rooms found</h3>
@@ -94,17 +95,17 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
 
   return (
     <div className="space-y-8">
-      {/* {testRooms.length > 0 && (
+      {/* {practiceRooms.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold">Test Room</h2>
             <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">Demo Mode</span>
           </div>
-          <RoomCarousel fee={10} rooms={testRooms} />
+          <RoomCarousel fee={10} rooms={practiceRooms} />
         </div>
       )} */}
 
-      {testRooms.length > 0 && (
+      {practiceRooms.length > 0 && (
         <Accordion
           type="single"
           collapsible
@@ -124,7 +125,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
-              <RoomCarousel fee={10} rooms={testRooms} />
+              <RoomCarousel fee={10} rooms={practiceRooms} />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -132,7 +133,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
 
       {roomsByFee.length > 0 && (
         <>
-          {testRooms.length > 0 && <div className="border-t border-border" />}
+          {practiceRooms.length > 0 && <div className="border-t border-border" />}
           {roomsByFee.map(({ fee, rooms }) => (
             <RoomCarousel key={fee} fee={fee} rooms={rooms} />
           ))}

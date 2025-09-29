@@ -5,23 +5,26 @@ import { Card, CardContent } from "@/components/ui/card"
 import { StartGameButton } from "./start-game-button"
 import { BingoClaimButton } from "./bingo-claim-button"
 import { checkWinningPattern } from "@/lib/utils/bingo"
+import { useGameStore } from "@/lib/stores/game-store"
+import { GameStatus, RoomStatus } from "@/lib/types"
 
 export function GameControls() {
-  const { room, game, selectedCardIds, userCards, pattern } = useRoomStore()
+  const { game: {userSelectedCards, userSelectedCardsIds, allCardIds, status }} = useGameStore()
+  const {room} = useRoomStore()
 
-  const canStartGame = selectedCardIds.length > 0 && room?.status === "open"
-  const gameInProgress = game?.status === "active" || room?.status === "in-game"
+  const canStartGame = userSelectedCardsIds?.length > 0 && room?.status === RoomStatus.OPEN
+  const gameInProgress = status === GameStatus.PLAYING && room?.status === RoomStatus.OPEN
 
-  const hasWinningCard = userCards.some((card) => (pattern ? checkWinningPattern(card, pattern) : false))
+  // const hasWinningCard = userCards.some((card) => (pattern ? checkWinningPattern(card, pattern) : false))
 
   return (
     <Card>
       <CardContent className="pt-6 space-y-4">
-        {!gameInProgress ? (
-          <StartGameButton disabled={!canStartGame} selectedCards={selectedCardIds.length} fee={room?.fee || 0} />
-        ) : (
-          <BingoClaimButton disabled={!hasWinningCard} hasWinningCard={hasWinningCard} />
-        )}
+        {/* {!gameInProgress ? ( */}
+          <StartGameButton disabled={!canStartGame} selectedCards={userSelectedCards?.length} fee={room?.entryFee || 0} />
+        {/* ) : (
+          <BingoClaimButton disabled={false} hasWinningCard={false} />
+        )} */}
 
         <div className="text-xs text-muted-foreground text-center space-y-1">
           {!gameInProgress ? (
