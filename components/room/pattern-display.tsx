@@ -3,11 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BINGO_PATTERNS, getPatternHighlight } from "@/lib/utils/bingo-patterns"
-import type { BingoPattern } from "@/lib/types"
+import type { GamePattern } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 interface PatternDisplayProps {
-  pattern: BingoPattern | string | null
+  pattern: GamePattern | string | null | undefined
   className?: string
 }
 
@@ -22,15 +22,15 @@ export function PatternDisplay({ pattern, className }: PatternDisplayProps) {
     )
   }
 
-  const patternKey = typeof pattern === "string" ? pattern : pattern?.name || "unknown"
-  const patternDef = BINGO_PATTERNS[patternKey]
-  const highlight = getPatternHighlight(patternKey)
+  // const patternKey = pattern//typeof pattern === "string" ? pattern : pattern || "unknown"
+  const patternDef = BINGO_PATTERNS[pattern]
+  const highlight = getPatternHighlight(pattern)
 
   if (!patternDef) {
     return (
       <Card className={className}>
         <CardContent className="pt-6">
-          <div className="text-center text-muted-foreground">Unknown pattern: {patternKey}</div>
+          <div className="text-center text-muted-foreground">Unknown pattern: {pattern}</div>
         </CardContent>
       </Card>
     )
@@ -41,7 +41,7 @@ export function PatternDisplay({ pattern, className }: PatternDisplayProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{patternDef.name}</CardTitle>
-          <Badge variant="secondary">{patternKey}</Badge>
+          <Badge variant="secondary">{pattern}</Badge>
         </div>
         <p className="text-sm text-muted-foreground">{patternDef.description}</p>
       </CardHeader>

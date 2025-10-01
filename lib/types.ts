@@ -109,7 +109,7 @@ export enum UserRole {
 export interface CardInfo {
   cardId: string;
   numbers: Partial<Record<BingoColumn, number[]>>;
-  markedNumbers: number[];
+  marked: number[];
 }
 
 export enum GameStatus {
@@ -134,12 +134,14 @@ export enum RoomStatus {
 }
 
 export interface GameWinner {
-  playerId: number
+  gameId: number,
+  playerId: string
   playerName: string
-  cardId: number
+  cardId: string
   pattern: GamePattern
   prizeAmount: number
   winAt: string
+  hasWinner: boolean
 }
 
 export interface GameState {
@@ -147,7 +149,7 @@ export interface GameState {
   roomId: number;
 
   // Players in the game
-  joinedPlayers: number[];
+  joinedPlayers: string[];
 
   // Total number of players in the game
   playersCount: number;
@@ -190,7 +192,6 @@ export interface GameState {
   // Stop flag for number drawing
   stopNumberDrawing: boolean;
 
-  winner: GameWinner | null;
 }
 
 
@@ -284,8 +285,9 @@ export interface PlayerJoined extends WSMessage {
   type: "game.playerJoined"
   payload: {
     gameId: number
-    playerId: number
+    playerId: string
     playersCount: number
+    joinedPlayers: string[]
   }
 }
 
@@ -313,8 +315,9 @@ export interface PlayerLeft extends WSMessage {
   type: "game.playerLeft"
   payload: {
     gameId: number
-    playerId: number
+    playerId: string
     playersCount: number
+    joinedPlayers: string[]
   }
 }
 
@@ -417,12 +420,10 @@ export interface MarkNumberRequest extends WSMessage {
 export interface MarkNumberResponse extends WSMessage {
   type: "card.markNumberResponse"
   payload: {
-    success: boolean
-    error: string | null
-    gameId: string
-    playerId: string
+    gameId?: string
+    playerId?: string
     cardId: string
-    number: number
+    numbers: number[]
   }
 }
 
@@ -440,12 +441,10 @@ export interface UnmarkNumberRequest extends WSMessage {
 export interface UnmarkNumberResponse extends WSMessage {
   type: "card.unmarkNumberResponse"
   payload: {
-    success: boolean
-    error: string | null
-    gameId: number
-    playerId: number
+    gameId?: number
+    playerId?: number
     cardId: string
-    number: number
+    numbers: number[]
   }
 }
 
@@ -459,8 +458,8 @@ export interface GameStarted extends WSMessage {
   }
 }
 
-export interface NumberCalled extends WSMessage {
-  type: "game.numberCalled"
+export interface NumberDrawn extends WSMessage {
+  type: "game.numberDrawn"
   payload: {
     gameId: number
     number: number
@@ -510,11 +509,7 @@ export interface Countdown extends WSMessage {
 
 export interface GameEnded extends WSMessage {
   type: "game.ended"
-  payload: {
-    gameId: number
-    endedAt: string
-    reason: string
-  }
+  payload: GameWinner
 }
 
 
@@ -560,7 +555,7 @@ export type WSResponseEvent =
   | PlayerLeft
   | CardSelected
   | CardReleased
-  | NumberCalled
+  | NumberDrawn
   | WinnerDeclared
   | Countdown
   | GameEnded

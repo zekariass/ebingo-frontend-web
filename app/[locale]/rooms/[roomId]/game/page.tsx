@@ -2,10 +2,11 @@ import { GameView } from "@/components/game/game-view"
 
 interface GamePageProps {
   params: {
-    roomId: string
+    roomId: number
   }
 }
 
-export default function GamePage({ params }: GamePageProps) {
-  return <GameView roomId={params.roomId} />
+export default async function GamePage({ params }: GamePageProps) {
+  const { roomId } = await params
+  return <GameView roomId={roomId} />
 }

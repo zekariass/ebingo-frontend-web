@@ -1,4 +1,4 @@
-import type { BingoCard, BingoPattern } from "@/lib/types"
+import type { CardInfo, GamePattern } from "@/lib/types"
 
 export interface PatternDefinition {
   name: string
@@ -8,9 +8,9 @@ export interface PatternDefinition {
 }
 
 // Define all bingo patterns
-export const BINGO_PATTERNS: Record<BingoPattern | string, PatternDefinition> = {
-  line: {
-    name: "Any Line",
+export const BINGO_PATTERNS: Record<GamePattern | string, PatternDefinition> = {
+  "LINE": {
+    name: "LINE_AND_CORNERS",
     description: "Complete any horizontal, vertical, or diagonal line",
     positions: [], // Dynamic - any complete line
     visualPattern: [
@@ -21,7 +21,7 @@ export const BINGO_PATTERNS: Record<BingoPattern | string, PatternDefinition> = 
       [true, false, false, false, true],
     ],
   },
-  "four-corners": {
+  "CORNERS": {
     name: "Four Corners",
     description: "Mark all four corner squares",
     positions: [
@@ -38,7 +38,7 @@ export const BINGO_PATTERNS: Record<BingoPattern | string, PatternDefinition> = 
       [true, false, false, false, true],
     ],
   },
-  "full-house": {
+  "FULL_HOUSE": {
     name: "Full House",
     description: "Mark every square on the card",
     positions: [], // All positions
@@ -50,7 +50,7 @@ export const BINGO_PATTERNS: Record<BingoPattern | string, PatternDefinition> = 
       [true, true, true, true, true],
     ],
   },
-  "x-pattern": {
+  "X_PATTERN": {
     name: "X Pattern",
     description: "Mark both diagonal lines to form an X",
     positions: [
@@ -163,15 +163,15 @@ export const BINGO_PATTERNS: Record<BingoPattern | string, PatternDefinition> = 
 }
 
 // Enhanced pattern checking with multiple pattern support
-export function checkWinningPattern(card: BingoCard, pattern: BingoPattern | string): boolean {
-  const { marked } = card
+export function checkWinningPattern(card: CardInfo, pattern: GamePattern | string): boolean {
+  const { markedNumbers: marked } = card
 
   switch (pattern) {
-    case "line":
+    case "LINE_AND_CORNERS":
       return checkAnyLine(marked)
-    case "four-corners":
+    case "CORNERS":
       return checkFourCorners(marked)
-    case "full-house":
+    case "FULL_HOUSE":
       return checkFullHouse(marked)
     case "x-pattern":
       return checkXPattern(marked)
@@ -253,7 +253,7 @@ export function getPatternCompletion(card: BingoCard, pattern: BingoPattern | st
   const patternDef = BINGO_PATTERNS[pattern]
   if (!patternDef) return 0
 
-  if (pattern === "line") {
+  if (pattern === "LINE_AND_CORNERS") {
     // For line pattern, check the best line completion
     let maxCompletion = 0
 
@@ -277,7 +277,7 @@ export function getPatternCompletion(card: BingoCard, pattern: BingoPattern | st
     return maxCompletion
   }
 
-  if (pattern === "full-house") {
+  if (pattern === "FULL_HOUSE") {
     const totalCells = 25
     const markedCells = card.marked.flat().filter(Boolean).length
     return markedCells / totalCells

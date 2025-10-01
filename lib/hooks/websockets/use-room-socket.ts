@@ -5,6 +5,9 @@ import { useRoomStore } from "@/lib/stores/room-store"
 import { GameStatus, type WSEvent, type WSMessage } from "@/lib/types"
 import { useGameStore } from "@/lib/stores/game-store"
 import { useSession } from "@/hooks/use-session"
+import { useRouter } from "next/navigation"
+import i18n from "@/i18n"
+
 
 interface UseRoomSocketOptions {
   roomId: number
@@ -29,6 +32,8 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
   const roomStore = useRoomStore()
   const gameStore = useGameStore()
   const { session, loading } = useSession()
+
+  const router = useRouter();
 
   // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Room Socket Hook - roomId:", roomId, "enabled:", enabled, "session:", session, "loading:", loading)
 
@@ -86,21 +91,25 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
 
       switch (message.type) {
         case "game.playerJoined":
-          _gameStore.addPlayer(message.payload.playerId)
+          // _gameStore.addPlayer(message.payload.playerId)
+          _gameStore.setJoinedPlayers(message.payload.joinedPlayers)
           _gameStore.setPlayersCount(message.payload.playersCount)
           break
         case "game.playerLeft":
           _gameStore.removePlayer(message.payload.playerId)
           _gameStore.setPlayersCount(message.payload.playersCount)
+          router.replace(`/${i18n.language}`)
+          _gameStore.resetGameState()
           break
         case "game.started":
-          _gameStore.updateStatus(message.payload.status)
-          _gameStore.setStarted(message.payload.started)
+          _gameStore.updateStatus(GameStatus.PLAYING)
+          _gameStore.setStarted(true)
           _gameStore.resetDrawnNumbers()
           break
-        case "game.numberCalled":
+        case "game.numberDrawn":
           _gameStore.addDrawnNumber(message.payload.number)
           _gameStore.setCurrentDrawnNumber(message.payload.number)
+          console.log("========= DRAWN NUMBER ==============>>>: "+ message.payload.number)
           break
         case "game.bingoClaimResponse":
           _gameStore.handleBingoClaimResponse(message.payload)
@@ -111,13 +120,18 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           _gameStore.setEnded(true)
           break
         case "game.countdown":
+          console.log("===================================>>>>COUNTDOWN>>>>>>>>>>>: message.payload.seconds")
           _gameStore.setCountdown(message.payload.seconds)
           break
         case "game.ended":
+          // _gameStore.setWinner(message.payload.winner)
+          _gameStore.updateStatus(GameStatus.COMPLETED)
           _gameStore.setEnded(true)
+          _gameStore.setWinner(message.payload)
+          router.replace(`/${i18n.language}/rooms/${roomId}`)
           break
         case "game.cardSelected":
-          _gameStore.selectCard(message.payload.cardId)
+          _gameStore.selectCard(message.payload.cardId, message.payload.playerId)
           break
         case "game.cardReleased":
           _gameStore.releaseCard(message.payload.cardId)
@@ -128,6 +142,13 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           if (message.payload.success && message.payload.gameState) {
             _gameStore.setGameState(message.payload.gameState)
           }
+          break
+        case "card.markNumberResponse":
+          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>  MARK NUMBER RESPONSE:", message.payload)
+          _gameStore.setMarkedNumbersForACard(message.payload.cardId, message.payload.numbers)
+          break
+        case "card.unmarkNumberResponse":
+          _gameStore.setMarkedNumbersForACard(message.payload.cardId, message.payload.numbers)
           break
         case "error":
           console.error("WebSocket Error:", message.payload.message)

@@ -2,13 +2,14 @@
 
 import { useRoomStore } from "@/lib/stores/room-store"
 import { GameBingoCard } from "./game-bingo-card"
+import { useGameStore } from "@/lib/stores/game-store"
 
 interface GameCardsProps {
-  selectedCardIds: number[]
+  selectedCardIds: string[]
 }
 
 export function GameCards({ selectedCardIds }: GameCardsProps) {
-  const { userCards } = useRoomStore()
+  const { game: {userSelectedCards: userCards} } = useGameStore()
 
   if (!userCards || userCards.length === 0) {
     return (
@@ -24,9 +25,9 @@ export function GameCards({ selectedCardIds }: GameCardsProps) {
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="text-center">
-        <h2 className="text-base sm:text-lg font-bold mb-3 text-primary">Your Selected Cards</h2>
+        {/* <h2 className="text-base sm:text-lg font-bold mb-3 text-primary">Your Selected Cards</h2> */}
 
-        <div className="grid grid-cols-5 gap-0.5 sm:gap-1 mb-3">
+        {/* <div className="grid grid-cols-5 gap-0.5 sm:gap-1 mb-3">
           {["B", "I", "N", "G", "O"].map((letter) => (
             <div
               key={letter}
@@ -35,12 +36,12 @@ export function GameCards({ selectedCardIds }: GameCardsProps) {
               {letter}
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
 
-      <div className="space-y-2 sm:space-y-4">
-        {userCards.map((card) => (
-          <GameBingoCard key={card.id} card={card} />
+      <div className="space-y-2 sm:space-y-2">
+        {userCards.map((card, index) => (
+          <GameBingoCard key={card.cardId} cardInfoId={card.cardId} index={index} />
         ))}
       </div>
     </div>

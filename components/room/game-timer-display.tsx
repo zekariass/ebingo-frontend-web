@@ -4,36 +4,40 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useGameTimer } from "@/lib/hooks/use-game-timer"
-import { Clock, Play, Trophy, Hourglass } from "lucide-react"
+import { Clock, Play, Trophy, Hourglass, Clock1 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useGameStore } from "@/lib/stores/game-store"
+import { GameStatus } from "@/lib/types"
+import { CountdownTimer } from "../common/countdown-timer"
 
 export function GameTimerDisplay() {
-  const { timeRemaining, isActive, phase, progress, formatTime } = useGameTimer()
+  // const { timeRemaining, isActive, phase, progress, formatTime } = useGameTimer()
+  const {game} = useGameStore()
 
-  const getPhaseConfig = (phase: string) => {
-    switch (phase) {
-      case "waiting":
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case GameStatus.READY:
         return {
-          icon: Clock,
-          label: "Next Game",
+          icon: Hourglass,
+          label: "Game waiting for more players",
           color: "text-muted-foreground",
           bgColor: "bg-muted",
         }
-      case "starting":
+      case GameStatus.COUNTDOWN:
         return {
-          icon: Hourglass,
-          label: "Starting Soon",
+          icon: Clock,
+          label: "Starting In:",
           color: "text-yellow-600 dark:text-yellow-400",
           bgColor: "bg-yellow-100 dark:bg-yellow-900",
         }
-      case "active":
+      case GameStatus.PLAYING:
         return {
           icon: Play,
-          label: "Game Active",
+          label: "Game In Progress",
           color: "text-green-600 dark:text-green-400",
           bgColor: "bg-green-100 dark:bg-green-900",
         }
-      case "finished":
+      case GameStatus.COMPLETED:
         return {
           icon: Trophy,
           label: "Game Finished",
@@ -50,7 +54,7 @@ export function GameTimerDisplay() {
     }
   }
 
-  const config = getPhaseConfig(phase)
+  const config = getStatusConfig(game.status)
   const Icon = config.icon
 
   return (
@@ -63,36 +67,28 @@ export function GameTimerDisplay() {
               <span className="text-sm font-medium">{config.label}</span>
             </div>
             <Badge variant="secondary" className={cn("text-xs", config.bgColor, config.color)}>
-              {phase.toUpperCase()}
+              {game.status}
             </Badge>
           </div>
 
-          {isActive && timeRemaining > 0 && (
+          {game.status === GameStatus.COUNTDOWN && (
             <>
               <div className="text-center">
-                <div className={cn("text-3xl font-bold font-mono", config.color)}>{formatTime()}</div>
+                <CountdownTimer seconds={game.countdown} />
               </div>
-
-              {phase === "starting" && <Progress value={progress * 100} className="h-2" />}
             </>
           )}
 
-          {phase === "active" && (
+          {game.status === GameStatus.PLAYING && (
             <div className="text-center">
               <div className={cn("text-lg font-semibold", config.color)}>Game in Progress</div>
-              <div className="text-sm text-muted-foreground">Mark numbers as they are called</div>
+              <div className="text-sm text-muted-foreground">Wait until the end of the game to choose cards</div>
             </div>
           )}
 
-          {phase === "finished" && (
+          {game.status === GameStatus.COMPLETED && (
             <div className="text-center">
               <div className={cn("text-lg font-semibold", config.color)}>Waiting for Next Game</div>
-            </div>
-          )}
-
-          {!isActive && phase === "waiting" && (
-            <div className="text-center text-muted-foreground">
-              <div className="text-sm">Waiting for players to join</div>
             </div>
           )}
         </div>

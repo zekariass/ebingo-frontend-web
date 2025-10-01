@@ -19,7 +19,7 @@ import { GameSettings } from "./game-settings"
 import { useGameStore } from "@/lib/stores/game-store"
 
 export function NumberCallingArea() {
-  const { room: {pattern} } = useRoomStore()
+  const room = useRoomStore(state => state.room)
   const {game: {currentDrawnNumber, drawnNumbers} } = useGameStore()
   const { numberCalled, enabled: soundEnabled } = useSoundEffects()
   const [previousNumber, setPreviousNumber] = useState<number | null>(null)
@@ -65,101 +65,10 @@ export function NumberCallingArea() {
       <GameTimerDisplay />
 
       {/* Current Pattern */}
-      <PatternDisplay pattern={pattern} />
+      <PatternDisplay pattern={room?.pattern} />
 
       {/* Number Calling */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Number Calling</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-              </Button>
-
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <History className="h-4 w-4 mr-2" />
-                    History
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Called Numbers History</DialogTitle>
-                  </DialogHeader>
-                  <ScrollArea className="h-64">
-                    <div className="grid grid-cols-5 gap-2 p-4">
-                      {calledNumbers.map((number, index) => (
-                        <Badge key={index} variant="outline" className="justify-center py-2">
-                          {formatBingoNumber(number)}
-                        </Badge>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          {/* Current Number */}
-          <div className="text-center space-y-2">
-            <div className="text-sm text-muted-foreground">Current Number</div>
-            <AnimatePresence mode="wait">
-              {currentNumber ? (
-                <motion.div
-                  key={currentNumber}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 1.2, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-6xl font-bold text-primary"
-                >
-                  {formatBingoNumber(currentNumber)}
-                </motion.div>
-              ) : (
-                <div className="text-2xl text-muted-foreground">Waiting for next number...</div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Recent Calls */}
-          <div className="space-y-2">
-            <div className="text-sm text-muted-foreground text-center">Recent Calls</div>
-            <div className="flex justify-center gap-2 flex-wrap">
-              {lastFiveCalls.map((number, index) => (
-                <motion.div
-                  key={number}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Badge
-                    variant="outline"
-                    className={`text-sm px-3 py-1 ${index === 0 ? "border-primary text-primary" : ""}`}
-                  >
-                    {formatBingoNumber(number)}
-                  </Badge>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-4 text-center text-sm">
-            <div>
-              <div className="font-semibold">{calledNumbers.length}</div>
-              <div className="text-muted-foreground">Numbers Called</div>
-            </div>
-            <div>
-              <div className="font-semibold">{75 - calledNumbers.length}</div>
-              <div className="text-muted-foreground">Remaining</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      
 
       {/* Pattern Progress */}
       <PatternProgress />

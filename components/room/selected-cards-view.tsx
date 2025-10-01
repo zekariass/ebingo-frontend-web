@@ -476,10 +476,10 @@ import { useRoomStore } from "@/lib/stores/room-store"
 import { useGameStore } from "@/lib/stores/game-store"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { CardInfo, BingoColumn } from "@/lib/types"
+import { useRoomSocket } from "@/lib/hooks/websockets/use-room-socket"
 
 function transformCardData(card?: Partial<Record<BingoColumn, number[]>>) {
   if (!card) return Array(5).fill(null).map(() => Array(5).fill(0))
@@ -502,6 +502,7 @@ interface InteractiveBingoCardProps {
 
 export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardProps) {
   const { room, connected } = useRoomStore()
+
   const {
     game: { drawnNumbers },
     getCurrentCardById,
@@ -509,7 +510,9 @@ export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardPro
     removeMarkedNumberFromCard,
   } = useGameStore()
 
-  console.log("========================>> Rendering InteractiveBingoCard for cardInfoId:", cardInfoId)
+  // console.log("========================>> Rendering InteractiveBingoCard for cardInfoId:", cardInfoId)
+
+  const {connected: isConnected} = useRoomSocket({roomId: room?.id? room.id: -1, enabled: true})
 
   const [currentCard, setCurrentCard] = useState<CardInfo | null>(null)
 
@@ -524,7 +527,7 @@ export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardPro
   const COLUMN_HEADERS = ["B", "I", "N", "G", "O"]
 
   const isNumberDrawn = (num: number) => drawnNumbers.includes(num)
-  const isMarked = (num: number) => currentCard?.markedNumbers?.includes(num)
+  const isMarked = (num: number) => currentCard?.marked?.includes(num)
 
   // const handleCellClick = (number: number, row: number, col: number) => {
   //   const isFree = row === 2 && col === 2
@@ -553,7 +556,7 @@ export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardPro
         <Badge variant="outline" className="font-mono text-xs">
           Card #{index + 1}
         </Badge>
-        {!connected && (
+        {!isConnected && (
           <Badge variant="destructive" className="text-xs">
             Offline
           </Badge>
@@ -578,13 +581,14 @@ export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardPro
           row.map((number, colIndex) => {
             const free = rowIndex === 2 && colIndex === 2
             const marked = isMarked(number) || free
-            const clickable = connected && !free && isNumberDrawn(number)
+            const clickable = isConnected && !free && isNumberDrawn(number)
 
             return (
               // <TooltipProvider key={`${rowIndex}-${colIndex}`}>
               //   <Tooltip>
               //     <TooltipTrigger asChild>
                     <Button
+                    key={colIndex}
                       variant="outline"
                       size="sm"
                       className={cn(
@@ -623,16 +627,6 @@ export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardPro
         )}
       </div>
 
-      {/* START THE GAME */}
-      {/* <div className="mt-3">
-        <Button
-          onClick={handleBingoClaim}
-          disabled={!connected}
-          className="w-full font-bold text-sm bg-green-500 hover:bg-green-600 text-white"
-        >
-         Start The Game
-        </Button>
-      </div> */}
     </div>
   )
 }

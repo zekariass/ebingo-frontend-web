@@ -1,326 +1,23 @@
-// import { create } from "zustand"
-// import { persist } from "zustand/middleware"
-// import { GameStatus as Status } from "@/lib/types"
-// import type { GameState, GameStatus, CardInfo, GameWinner, WSPayload } from "@/lib/types"
-// import { add } from "date-fns"
-
-// interface GameStore {
-//   game : GameState
-//   error: string | null
-
-//   // Actions
-//   setGameState: (game: Partial<GameState>) => void
-//   resetGameState: () => void
-//   getGameState: () => Promise<GameState | null>
-//   addPlayer: (playerId: number) => void
-//   removePlayer: (playerId: number) => void
-//   setPlayersCount: (count: number) => void
-//   addDrawnNumber: (number: number) => void
-//   resetDrawnNumbers: () => void
-//   setCurrentDrawnNumber: (number: number) => void
-//   addDisqualifiedPlayer: (userId: number) => void
-//   setAmIDisqualified: (disqualified: boolean) => void
-//   addCard: (card: CardInfo) => void
-//   selectCard: (cardId: string) => void
-//   releaseCard: (cardId: string) => void
-//   setAllPlayerSelectedCardIds: (cardIds: string[]) => void
-//   setAllCardIds: (cardIds: string[]) => void
-//   addMarkedNumberToCard: (cardId: string, number: number) => void
-//   removeMarkedNumberFromCard: (cardId: string, number: number) => void
-//   setWinner: (winner: GameWinner) => void
-//   stopDrawing: () => void
-//   setStarted: (started: boolean) => void
-//   setEnded: (ended: boolean) => void
-//   updateStatus: (status: GameStatus) => void
-//   handleBingoClaimResponse: (payload: WSPayload) => void
-//   setCountdown: (seconds: number) => void
-//   setError: (error: string | null) => void
-
-// }
-
-// const initialGameState: GameState = {
-//   gameId: 0,
-//   roomId: 0,
-//   joinedPlayers: [],
-//   playersCount: 0,
-//   drawnNumbers: [25, 67,  7, 55, 42, 5, 18, 48, 70, 10, 30, 60],
-//   disqualifiedUsers: [],
-//   amIDisqualified: false,
-//   currentCardPool: [],
-//   userSelectedCardsIds: [],
-//   userSelectedCards: [],
-//   allSelectedCardsIds: ['7c6f0469-8073-46cb-8aff-6617fa6ffbf5', '9b60e6f8-f3d2-4d8d-a864-80a095d7db47'],
-//   allCardIds: [],
-//   started: false,
-//   ended: false,
-//   status: Status.READY,
-//   stopNumberDrawing: false,
-//   winner: null,
-//   countdown: 0,
-// }
-
-// export const useGameStore = create<GameStore>()(
-//   persist(
-//     (set, get) => ({
-//       game: initialGameState,
-//       error: null,
-
-//       setGameState: (game) =>
-//         set((state) => ({
-//           game: { ...state.game, ...game },
-//         })),
-
-//       resetGameState: () => set({ game: { ...initialGameState } }),
-
-//         getGameState: async () => {
-//         try {
-//           const response = await fetch(`/api/game/${get().game.roomId}/state`); 
-//             if (!response.ok) {
-//             throw new Error(`Error fetching game state: ${response.statusText}`);
-//           }
-//             const data = await response.json();
-//             set({ game: data });
-//             return data;
-//         } catch (error) {
-//           console.error("Failed to fetch game state:", error);
-//           return null;
-//         }
-//         },
-
-//       addPlayer: (playerId) =>
-//         set((state) => {
-//           if (state.game.joinedPlayers.includes(playerId)) return state
-//           return {
-//             game: {
-//               ...state.game,
-//               joinedPlayers: [...state.game.joinedPlayers, playerId],
-//             },
-//           }
-//         }),
-
-//       removePlayer: (playerId) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             joinedPlayers: state.game.joinedPlayers.filter((id) => id !== playerId),
-//           },
-//         })),
-
-//         setPlayersCount: (count) =>
-//         set((state) => ({
-//           game: {       
-//             ...state.game,
-//             playersCount: count,
-//           },
-//         })),
-
-//       addDrawnNumber: (number) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             drawnNumbers: [...state.game.drawnNumbers, number],
-//           },
-//         })),
-
-//         setCurrentDrawnNumber: (number) =>  
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             currentDrawnNumber: number,
-//           },
-//         })),
-
-//         resetDrawnNumbers: () =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             drawnNumbers: [],
-//           },
-//         })),
-
-//       addDisqualifiedPlayer: (userId) =>
-//         set((state) => {
-//           if (state.game.disqualifiedUsers.includes(userId)) return state
-//           return {
-//             game: {
-//               ...state.game,
-//               disqualifiedUsers: [...state.game.disqualifiedUsers, userId],
-//             },
-//           }
-//         }),
-
-//         setAmIDisqualified: (disqualified) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             amIDisqualified: disqualified,
-//           },
-//         })),
-
-//       addCard: (card) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             currentCardPool: [...state.game.currentCardPool, card],
-//           },
-//         })),
-
-//       selectCard: (cardId) =>
-//         set((state) => {
-//           if (state.game.userSelectedCardsIds.includes(cardId)) return state
-//           return { game: {
-//               ...state.game,
-//               allSelectedCardsIds: [...state.game.allSelectedCardsIds, cardId],
-//               userSelectedCardsIds: [...state.game.userSelectedCardsIds, cardId],
-//                 userSelectedCards: state.game.currentCardPool.filter(card => state.game.userSelectedCardsIds.includes(card.cardId) || card.cardId === cardId)
-
-//             },
-//           }
-//         }),
-           
-
-//       releaseCard: (cardId) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             userSelectedCardsIds: state.game.userSelectedCardsIds?.filter((id) => id !== cardId),
-//             userSelectedCards: state.game.userSelectedCards?.filter(card => card.cardId !== cardId) || [],
-//             allSelectedCardsIds: state.game.allSelectedCardsIds?.filter((id) => id !== cardId),
-//           },
-//         })),
-
-
-//         setAllPlayerSelectedCardIds: (cardIds) => 
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             allSelectedCardsIds: cardIds,
-//           },
-//         })),
-
-
-//         setAllCardIds: (cardIds) => 
-//         set((state) => ({
-//           game: {   
-//             ...state.game,
-//             allCardIds: cardIds,
-//           },
-//         })),
-
-//         addMarkedNumberToCard: (cardId, number) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             userSelectedCards: state.game.userSelectedCards?.map(card => {
-//               if (card.cardId !== cardId) return card
-//               if (card.markedNumbers.includes(number)) return card
-//               return { ...card, markedNumbers: [...card.markedNumbers, number] }
-//             }) || [],
-//           },
-//         })),
-
-//         removeMarkedNumberFromCard: (cardId, number) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             userSelectedCards: state.game.userSelectedCards?.map(card => {
-//               if (card.cardId !== cardId) return card
-//               return { ...card, markedNumbers: card.markedNumbers.filter(n => n !== number) }
-//             }) || [],
-//           },
-//         })),
-
-//       setWinner: (winner) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             winner,
-//             ended: true,
-//             status: Status.COMPLETED,
-//           },
-//         })),
-
-//         setStarted: (started) =>        
-//         set((state) => ({
-//             game: {
-//             ...state.game,
-//             started,
-//             status: started ? Status.PLAYING : state.game.status,
-//           },
-//         })),
-
-//         setEnded: (ended) =>
-//         set((state) => ({
-//           game: {
-//             ...state.game,
-//             ended,
-//             status: ended ? Status.COMPLETED : state.game.status,
-//           },
-//         })),
-
-//         handleBingoClaimResponse: (payload) => {
-//          if (!payload.success && payload.reason) {
-//             set((state) => ({
-//               game: {
-//                 ...state.game,
-//                 disqualifiedUsers: [...state.game.disqualifiedUsers, payload.playerId],
-//                 amIDisqualified: !payload.success,
-//               },
-//             })) 
-//           // Handle unsuccessful claim (e.g., show notification)
-//           console.warn("Bingo claim unsuccessful:", payload.reason)
-//         }   
-//         },
-
-//         setCountdown: (seconds) =>
-//         set((state) => ({
-//             game: { 
-//             ...state.game,
-//             countdown: seconds,
-//             status: seconds > 0 ? Status.COUNTDOWN : state.game.status,
-//           },
-//         })),
-
-//         setError: (error) => set({ error }),
-
-//       updateStatus: (status) =>
-//         set((state) => ({
-//           game: { ...state.game, status },
-//         })),
-
-//       stopDrawing: () =>
-//         set((state) => ({
-//           game: { ...state.game, stopNumberDrawing: true },
-//         })),
-
-       
-//     }),
-//     {
-//       name: "bingo-game-storage",
-//       partialize: (state) => ({
-//         game: state.game,
-//       }),
-//     },
-//   ),
-// )
-
-
-
-import { create } from "zustand"
-import { persist } from "zustand/middleware"
-import { GameStatus as Status } from "@/lib/types"
+import { create, useStore } from "zustand"
+import { GamePattern, GameStatus as Status } from "@/lib/types"
 import type { GameState, GameStatus, CardInfo, GameWinner, WSPayload } from "@/lib/types"
+import { error } from "console";
+import { useSession } from "@/hooks/use-session";
+import { useUserProfile } from "@/hooks/use-user-profile";
+import { userStore } from "./user-store";
 
 interface GameStore {
   game: GameState
+  winner: GameWinner;
   error: string | null
 
   // Actions
   setGameState: (game: Partial<GameState>) => void
   resetGameState: () => void
   getGameState: () => Promise<GameState | null>
-  addPlayer: (playerId: number) => void
-  removePlayer: (playerId: number) => void
+  addPlayer: (playerId: string) => void
+  setJoinedPlayers: (joindPlayers: string[]) => void
+  removePlayer: (playerId: string) => void
   setPlayersCount: (count: number) => void
   addDrawnNumber: (number: number) => void
   resetDrawnNumbers: () => void
@@ -328,22 +25,25 @@ interface GameStore {
   addDisqualifiedPlayer: (userId: number) => void
   setAmIDisqualified: (disqualified: boolean) => void
   addCard: (card: CardInfo) => void
-  selectCard: (cardId: string) => void
+  selectCard: (cardId: string, userId: string) => void
   releaseCard: (cardId: string) => void
   setAllPlayerSelectedCardIds: (cardIds: string[]) => void
   setAllCardIds: (cardIds: string[]) => void
   addMarkedNumberToCard: (cardId: string, number: number) => void
+  setMarkedNumbersForACard: (cardId: string, numbers: number[]) => void
+  removeMarkedNumberFromCard: (cardId: string, number: number) => void
   computePlayerCardsFromPlayerCardsIds: () => void,
   getCurrentCardById: (cardId: string) => CardInfo | null
-  removeMarkedNumberFromCard: (cardId: string, number: number) => void
-  setWinner: (winner: GameWinner) => void
   stopDrawing: () => void
   // joinGame: () => void,
   setStarted: (started: boolean) => void
   setEnded: (ended: boolean) => void
   updateStatus: (status: GameStatus) => void
+  // claimBingo: (gameId: number, markedNumbers: number[]) => void
   handleBingoClaimResponse: (payload: WSPayload) => void
   setCountdown: (seconds: number) => void
+  setWinner: (winner: GameWinner) => void
+  resetWinner: () => void
   setError: (error: string | null) => void
 }
 
@@ -364,8 +64,18 @@ const initialGameState: GameState = {
   ended: false,
   status: Status.READY,
   stopNumberDrawing: false,
-  winner: null,
-  countdown: 0,
+  countdown: -1,
+}
+
+const initialWinnerState: GameWinner ={
+  gameId: -1,
+  playerId: "", 
+  playerName: "",
+  cardId: "",
+  pattern: GamePattern.LINE_AND_CORNERS,
+  prizeAmount: 0,
+  winAt: "",
+  hasWinner: false
 }
 
 const maxCards = 2
@@ -374,6 +84,7 @@ export const useGameStore = create<GameStore>()(
   // persist(
     (set, get) => ({
       game: initialGameState,
+      winner: initialWinnerState,
       error: null,
 
       setGameState: (game) =>
@@ -421,6 +132,16 @@ export const useGameStore = create<GameStore>()(
             },
           }
         }),
+
+        setJoinedPlayers: (newJoinedPlayers) => 
+          set((state) => {
+            return {
+              game: {
+                ...state.game,
+                joinedPlayers: newJoinedPlayers
+              }
+            }
+          }),
 
       removePlayer: (playerId) =>
         set((state) => ({
@@ -477,21 +198,44 @@ export const useGameStore = create<GameStore>()(
           },
         })),
 
-      selectCard: (cardId) =>
+      selectCard: (cardId, userId) => {
+        const { user: currentUser } = userStore.getState() // better than calling userStore() directly
+
+        if (!currentUser) return
+
         set((state) => {
           const { game } = state
-          if (game.userSelectedCardsIds.includes(cardId)) return state
-          if (game.userSelectedCardsIds.length >= maxCards) return state
 
-          const newUserSelectedIds = Array.from(
-            new Set([...game.userSelectedCardsIds, cardId]),
-          )
+          // Already selected? Do nothing
+          if (game.userSelectedCardsIds.includes(cardId)) return state
+
+          // Enforce max cards only for the current user
+          if (
+            userId === currentUser.supabaseId &&
+            game.userSelectedCardsIds.length >= maxCards
+          ) {
+            return state
+          }
+
+          // Always update all selected IDs
           const newAllSelectedIds = Array.from(
-            new Set([...game.allSelectedCardsIds, cardId]),
+            new Set([...game.allSelectedCardsIds, cardId])
           )
-          const newUserSelectedCards = game.currentCardPool.filter((card) =>
-            newUserSelectedIds.includes(card.cardId),
-          )
+
+          // Default safe values
+          let newUserSelectedIds = game.userSelectedCardsIds
+          let newUserSelectedCards = game.userSelectedCards
+
+          // If the action is from the current user, update their selections
+          if (userId === currentUser.supabaseId) {
+            newUserSelectedIds = Array.from(
+              new Set([...game.userSelectedCardsIds, cardId])
+            )
+
+            newUserSelectedCards = game.currentCardPool.filter((card) =>
+              newUserSelectedIds.includes(card.cardId)
+            )
+          }
 
           return {
             game: {
@@ -501,7 +245,8 @@ export const useGameStore = create<GameStore>()(
               userSelectedCards: newUserSelectedCards,
             },
           }
-        }),
+        })
+      },
 
       releaseCard: (cardId) =>
         set((state) => {
@@ -537,18 +282,36 @@ export const useGameStore = create<GameStore>()(
           game: { ...state.game, allCardIds: [...new Set(cardIds)] },
         })),
 
-      addMarkedNumberToCard: (cardId, number) =>
+    addMarkedNumberToCard: (cardId, number) =>
+      set((state) => ({
+        game: {
+          ...state.game,
+          userSelectedCards:
+            state.game.userSelectedCards?.map((card) => {
+              if (card.cardId !== cardId) return card
+              console.log("=================>>> MARKED NUMBERS: ", card)
+              if (card.marked?.includes(number)) return card
+              return { ...card, marked: [...(card.marked ?? []), number] }
+            }) || [],
+        },
+      })),
+
+
+      setMarkedNumbersForACard: (cardId: string, numbers: number[] = []) =>
         set((state) => ({
           game: {
             ...state.game,
-            userSelectedCards:
-              state.game.userSelectedCards?.map((card) => {
-                if (card.cardId !== cardId) return card
-                if (card.markedNumbers.includes(number)) return card
-                return { ...card, markedNumbers: [...card.markedNumbers, number] }
-              }) || [],
+            userSelectedCards: (state.game.userSelectedCards ?? []).map((card) =>
+              card.cardId === cardId
+                ? { 
+                    ...card, 
+                    marked: Array.from(new Set([...(card.marked ?? []), ...numbers])) 
+                  }
+                : card
+            ),
           },
         })),
+
 
       removeMarkedNumberFromCard: (cardId, number) =>
         set((state) => ({
@@ -557,13 +320,11 @@ export const useGameStore = create<GameStore>()(
             userSelectedCards:
               state.game.userSelectedCards?.map((card) => {
                 if (card.cardId !== cardId) return card
-                return {
-                  ...card,
-                  markedNumbers: card.markedNumbers.filter((n) => n !== number),
-                }
+                return { ...card, marked: (card.marked ?? []).filter((n) => n !== number) }
               }) || [],
           },
         })),
+
 
       getCurrentCardById: (cardId: string) => {
         const { game } = get()
@@ -573,12 +334,15 @@ export const useGameStore = create<GameStore>()(
 
       setWinner: (winner) =>
         set((state) => ({
-          game: {
-            ...state.game,
-            winner,
-            ended: true,
-            status: Status.COMPLETED,
-          },
+          game: {...state.game},
+          winner: {...winner}
+        })),
+
+      resetWinner: () => 
+        set((state)=>({
+          game: {...state.game},
+          error: state.error,
+          winner: {...initialWinnerState}
         })),
 
       setStarted: (started) =>
@@ -598,6 +362,8 @@ export const useGameStore = create<GameStore>()(
             status: ended ? Status.COMPLETED : state.game.status,
           },
         })),
+
+        // claimBingo: (gameId: number, markedNumbers: number[]) =>
 
       handleBingoClaimResponse: (payload) => {
         if (!payload.success && payload.reason) {

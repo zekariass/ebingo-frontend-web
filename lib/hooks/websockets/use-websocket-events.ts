@@ -48,7 +48,7 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
       if (!socket) return
       socket.send({
         type: "game.playerJoinRequest",
-        payload: { roomId, gameId, fee },
+        payload: { gameId, fee, capacity },
       })
     },
     [socket, roomId]
@@ -56,11 +56,11 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
 
   // ✅ Leave Game
   const leaveGame = useCallback(
-    (gameId: number, playerId: number) => {
+    (gameId: number, playerId: string) => {
       if (!socket) return
       socket.send({
         type: "game.playerLeaveRequest",
-        payload: { roomId, playerId, gameId },
+        payload: { gameId },
       })
     },
     [socket, roomId]
@@ -96,7 +96,7 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
       if (!socket) return
       socket.send({
         type: "card.markNumberRequest",
-        payload: { gameId, cardId, number, playerId: user?.id },
+        payload: { gameId, cardId, number},
       })
     },
     [socket, user?.id]
@@ -108,7 +108,7 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
       if (!socket) return
       socket.send({
         type: "card.unmarkNumberRequest",
-        payload: { gameId, cardId, number, playerId: user?.id },
+        payload: { gameId, cardId, number },
       })
     },
     [socket, user?.id]

@@ -1,6 +1,6 @@
 "use client"
 
-import { useRoomStore } from "@/lib/stores/room-store"
+import { useGameStore } from "@/lib/stores/game-store"
 import { cn } from "@/lib/utils"
 
 const BINGO_LETTERS = ["B", "I", "N", "G", "O"]
@@ -22,45 +22,55 @@ const generateNumberGrid = () => {
 }
 
 export function NumberGrid() {
-  const { calledNumbers } = useRoomStore()
+  const {
+    game: { drawnNumbers: calledNumbers },
+  } = useGameStore()
   const numberGrid = generateNumberGrid()
 
   return (
-    <div className="bg-card rounded-lg border p-2 sm:p-4">
-      <h2 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-center text-primary">75 Number Grid</h2>
+    <div className="bg-card rounded-lg border p-2 sm:p-4 w-full">
+      <h2 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-center text-primary">
+        75 Number Grid
+      </h2>
 
-      <div className="grid grid-cols-5 gap-0.5 sm:gap-1 mb-3">
-        {BINGO_LETTERS.map((letter) => (
-          <div
-            key={letter}
-            className="bg-primary text-primary-foreground text-center py-2 sm:py-3 rounded-md font-bold text-sm sm:text-lg shadow-sm"
-          >
-            {letter}
+      <div className="flex items-center justify-center w-full">
+        <div className="w-full max-w-3xl">
+          {/* Header row: B I N G O */}
+          <div className="grid grid-cols-5 gap-0.5 sm:gap-1 mb-3 w-full">
+            {BINGO_LETTERS.map((letter) => (
+              <div
+                key={letter}
+                className="h-4 md:h-8 bg-primary text-primary-foreground flex items-center justify-center rounded-xs font-bold text-xs sm:text-lg shadow-sm"
+              >
+                {letter}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="grid grid-cols-5 gap-0.5 sm:gap-1">
-        {numberGrid.map((column, colIndex) => (
-          <div key={colIndex} className="space-y-0.5 sm:space-y-1">
-            {column.map((number) => {
-              const isCalled = calledNumbers.includes(number)
-              return (
-                <div
-                  key={number}
-                  className={cn(
-                    "aspect-square flex items-center justify-center rounded text-xs font-medium border-2 transition-all duration-300",
-                    isCalled
-                      ? "bg-green-500 text-white border-green-600 shadow-md"
-                      : "bg-muted text-muted-foreground border-border hover:border-primary/50",
-                  )}
-                >
-                  {number}
-                </div>
-              )
-            })}
+          {/* Number cells */}
+          <div className="grid grid-cols-5 gap-0.5 sm:gap-1 w-full">
+            {Array.from({ length: 15 }).map((_, row) =>
+              BINGO_LETTERS.map((_, col) => {
+                const number = numberGrid[col][row]
+                const isCalled = calledNumbers.includes(number)
+
+                return (
+                  <div
+                    key={number}
+                    className={cn(
+                      "h-7 md:h-10 flex items-center justify-center rounded-xs text-xs sm:text-sm font-medium border-2 transition-all duration-300",
+                      isCalled
+                        ? "bg-green-500 text-white border-green-600 shadow-md"
+                        : "bg-muted text-muted-foreground border-border hover:border-primary/50"
+                    )}
+                  >
+                    {number}
+                  </div>
+                )
+              })
+            )}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )

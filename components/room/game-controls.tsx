@@ -8,7 +8,10 @@ import { checkWinningPattern } from "@/lib/utils/bingo"
 import { useGameStore } from "@/lib/stores/game-store"
 import { GameStatus, RoomStatus } from "@/lib/types"
 
-export function GameControls() {
+export interface GameControlsProps{
+  disabled: boolean
+}
+export function GameControls({disabled}: GameControlsProps) {
   const { game: {userSelectedCards, userSelectedCardsIds, allCardIds, status }} = useGameStore()
   const {room} = useRoomStore()
 
@@ -21,7 +24,7 @@ export function GameControls() {
     <Card>
       <CardContent className="pt-6 space-y-4">
         {/* {!gameInProgress ? ( */}
-          <StartGameButton disabled={!canStartGame} selectedCards={userSelectedCards?.length} fee={room?.entryFee || 0} />
+          <StartGameButton disabled={!canStartGame || disabled} selectedCards={userSelectedCards?.length} fee={room?.entryFee || 0} />
         {/* ) : (
           <BingoClaimButton disabled={false} hasWinningCard={false} />
         )} */}

@@ -8,13 +8,15 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { userStore } from "@/lib/stores/user-store"
+import { GameStatus } from "@/lib/types"
 
 interface CardSelectionGridProps {
   roomId: number
   capacity: number
+  disabled: boolean
 }
 
-export function CardSelectionGrid({ roomId, capacity }: CardSelectionGridProps) {
+export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionGridProps) {
   // const {
   //   game: { userSelectedCardsIds, allSelectedCardsIds, allCardIds },
   //   selectCard,
@@ -25,8 +27,9 @@ export function CardSelectionGrid({ roomId, capacity }: CardSelectionGridProps) 
   const allSelectedCardsIds = useGameStore(state => state.game.allSelectedCardsIds)
   const allCardIds = useGameStore(state => state.game.allCardIds)
   const gameId = useGameStore(state => state.game.gameId)
-  const selectCard = useGameStore(state => state.selectCard)
-  const releaseCard = useGameStore(state => state.releaseCard)
+  const gameStatus = useGameStore(state => state.game.status)
+  // const selectCard = useGameStore(state => state.selectCard)
+  // const releaseCard = useGameStore(state => state.releaseCard)
 
 
   const {enterRoom, connected, selectCard: selectCardBackend, releaseCard: releaseCardBackend} =  useWebSocketEvents({roomId: roomId, enabled: true});
@@ -154,7 +157,7 @@ export function CardSelectionGrid({ roomId, capacity }: CardSelectionGridProps) 
                   ${userSelectedCardsIds.length >= maxCards && status === "available" ? "opacity-50" : ""}
                 `}
                 onClick={() => handleCardClick(cardId)}
-                disabled={!userSelectedCardsIds.includes(cardId) && (status === "taken" || (userSelectedCardsIds.length >= maxCards && status === "available"))}
+                disabled={(!userSelectedCardsIds.includes(cardId) && (status === "taken" || (userSelectedCardsIds.length >= maxCards && status === "available"))) || disabled}
               >
                 {absoluteIndex}
                 {status === "selected" && (
