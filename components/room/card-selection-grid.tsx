@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { userStore } from "@/lib/stores/user-store"
-import { GameStatus } from "@/lib/types"
 
 interface CardSelectionGridProps {
   roomId: number
@@ -17,20 +16,11 @@ interface CardSelectionGridProps {
 }
 
 export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionGridProps) {
-  // const {
-  //   game: { userSelectedCardsIds, allSelectedCardsIds, allCardIds },
-  //   selectCard,
-  //   releaseCard,
-  // } = useGameStore()
 
   const userSelectedCardsIds = useGameStore(state => state.game.userSelectedCardsIds)
   const allSelectedCardsIds = useGameStore(state => state.game.allSelectedCardsIds)
   const allCardIds = useGameStore(state => state.game.allCardIds)
   const gameId = useGameStore(state => state.game.gameId)
-  const gameStatus = useGameStore(state => state.game.status)
-  // const selectCard = useGameStore(state => state.selectCard)
-  // const releaseCard = useGameStore(state => state.releaseCard)
-
 
   const {enterRoom, connected, selectCard: selectCardBackend, releaseCard: releaseCardBackend} =  useWebSocketEvents({roomId: roomId, enabled: true});
 
@@ -49,11 +39,7 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
       enterRoom();
   }, [enterRoom, connected]);
 
-  // useEffect(() => {
-  //     enterRoom();
-  // }, []);
-
-  // 👉 Slice the cards for the current page
+  // Slice the cards for the current page
   const paginatedCards = useMemo(() => {
     const startIndex = (currentPage - 1) * cardsPerPage
     const endIndex = Math.min(startIndex + cardsPerPage, totalCards)
@@ -61,14 +47,13 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
   }, [allCardIds, currentPage, cardsPerPage, totalCards])
 
   const handleCardClick = (cardId: string) => {
+
     if (userSelectedCardsIds.includes(cardId) && user?.supabaseId) {
-      // releaseCard(cardId)
       releaseCardBackend(gameId, cardId)
     } else if (!takenCards.has(cardId) && userSelectedCardsIds.length < maxCards && user?.supabaseId) {
-      // selectCard(cardId)
+    console.log("========== CARD ID ======= ", cardId , " =======SUPABASEID=========", user?.supabaseId)
+
       selectCardBackend(gameId, cardId)
-      // console.log("==============================>>>>:userSelectedCardsIds "+ userSelectedCardsIds)
-      
     }
   }
 
@@ -80,10 +65,10 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
 
   return (
     <Card>
-      <CardHeader className="pb-1 sm:pb-1">
+      <CardHeader className="">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-            <Badge variant="outline" className="w-fit">
+          <div className="flex flex-row sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+            <Badge variant="destructive" className="w-fit">
               {userSelectedCardsIds.length}/{maxCards} selected
             </Badge>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -96,7 +81,7 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
                 <span className="text-muted-foreground text-xs">Selected</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-gray-400 rounded-full" />
+                <div className="w-2 h-2 sm:w-3 sm:h-3 border-red-300 bg-red-300 dark:bg-red-950 rounded-full" />
                 <span className="text-muted-foreground text-xs">Taken</span>
               </div>
             </div>
@@ -106,7 +91,7 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
         {totalPages > 1 && (
           <div className="flex items-center gap-2 justify-end mt-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
@@ -117,7 +102,7 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
               Page {currentPage} of {totalPages}
             </span>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
@@ -128,15 +113,15 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
         )}
       </CardHeader>
 
-      <CardContent className="p-2 sm:p-3">
-        {totalPages > 1 && (
+      <CardContent className="p-1 sm:p-1">
+        {/* {totalPages > 1 && (
           <div className="mb-3 text-xs text-muted-foreground text-center">
             Showing cards {(currentPage - 1) * cardsPerPage + 1} –{" "}
             {Math.min(currentPage * cardsPerPage, totalCards)} of {totalCards}
           </div>
-        )}
+        )} */}
 
-        <div className="grid grid-cols-8 xs:grid-cols-10 sm:grid-cols-12 md:grid-cols-15 lg:grid-cols-18 xl:grid-cols-20 gap-0.5 sm:gap-0.5 max-h-[60vh] overflow-y-auto">
+        <div className="grid grid-cols-10 xs:grid-cols-10 sm:grid-cols-10 md:grid-cols-20 lg:grid-cols-20 xl:grid-cols-20 gap-0.5 sm:gap-0.5 max-h-[60vh] overflow-y-auto">
           {paginatedCards.map((cardId, index) => {
             const status = getCardStatus(cardId)
             const absoluteIndex = (currentPage - 1) * cardsPerPage + index + 1

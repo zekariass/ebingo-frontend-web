@@ -1,6 +1,5 @@
 "use client"
 
-import { useRoomStore } from "@/lib/stores/room-store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SelectedCardsView } from "./selected-cards-view"
 import { useGameStore } from "@/lib/stores/game-store"
@@ -8,8 +7,6 @@ import { useEffect } from "react"
 
 export function SelectedCardsPanel() {
   const { game: {userSelectedCards, userSelectedCardsIds}, computePlayerCardsFromPlayerCardsIds } = useGameStore()
-
-  // console.log("====================userSelectedCards=====================>>>: ", userSelectedCards)
 
   useEffect(() => {
     computePlayerCardsFromPlayerCardsIds()
@@ -23,11 +20,7 @@ export function SelectedCardsPanel() {
     <Card className="p-0">
       <CardHeader>
         <CardTitle className="text-base sm:text-lg pt-2">Your Selected Cards ({userSelectedCards?.length}/2)</CardTitle>
-        {/* <p className="text-xs sm:text-sm text-muted-foreground">
-          Click on numbers that have been called to mark them on your cards.
-        </p> */}
       </CardHeader>
-
       <CardContent className="p-2 sm:p-4">
         <div
           className={`grid gap-1 sm:gap-2 md:gap-4 w-full ${userSelectedCards?.length === 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"

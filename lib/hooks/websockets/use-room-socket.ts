@@ -7,6 +7,7 @@ import { useGameStore } from "@/lib/stores/game-store"
 import { useSession } from "@/hooks/use-session"
 import { useRouter } from "next/navigation"
 import i18n from "@/i18n"
+import { userStore } from "@/lib/stores/user-store"
 
 
 interface UseRoomSocketOptions {
@@ -32,6 +33,7 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
   const roomStore = useRoomStore()
   const gameStore = useGameStore()
   const { session, loading } = useSession()
+  const userSupabaseId = userStore(state => state.user?.supabaseId)
 
   const router = useRouter();
 
@@ -98,21 +100,31 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
         case "game.playerLeft":
           _gameStore.removePlayer(message.payload.playerId)
           _gameStore.setPlayersCount(message.payload.playersCount)
-          router.replace(`/${i18n.language}`)
-          _gameStore.resetGameState()
+          
+          if (userSupabaseId && userSupabaseId === message.payload.playerId){
+            message.payload.releasedCardsIds?.map(cardId => 
+             _gameStore.releaseCard(cardId))
+            _gameStore.resetGameState()
+            router.replace(`/${i18n.language}/rooms/${message.payload.roomId}`)
+          }
+          
           break
         case "game.started":
-          _gameStore.updateStatus(GameStatus.PLAYING)
-          _gameStore.setStarted(true)
-          _gameStore.resetDrawnNumbers()
+          if (message.payload.gameId === gameStoreRef.current.game.gameId){
+            _gameStore.updateStatus(GameStatus.PLAYING)
+            _gameStore.setStarted(true)
+            _gameStore.resetDrawnNumbers()
+            _gameStore.setClaiming(false)
+          }
           break
         case "game.numberDrawn":
           _gameStore.addDrawnNumber(message.payload.number)
           _gameStore.setCurrentDrawnNumber(message.payload.number)
-          console.log("========= DRAWN NUMBER ==============>>>: "+ message.payload.number)
+          // console.log("========= DRAWN NUMBER ==============>>>: "+ message.payload.number)
           break
         case "game.bingoClaimResponse":
           _gameStore.handleBingoClaimResponse(message.payload)
+          _gameStore.setClaiming(false)
           break
         case "game.winnerDeclared":
           _gameStore.setWinner(message.payload.winner)
@@ -120,31 +132,36 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           _gameStore.setEnded(true)
           break
         case "game.countdown":
-          console.log("===================================>>>>COUNTDOWN>>>>>>>>>>>: message.payload.seconds")
-          _gameStore.setCountdown(message.payload.seconds)
+          _gameStore.setCountdownWithEndTime(message.payload.seconds, message.payload.endTime)
           break
         case "game.ended":
           // _gameStore.setWinner(message.payload.winner)
-          _gameStore.updateStatus(GameStatus.COMPLETED)
-          _gameStore.setEnded(true)
-          _gameStore.setWinner(message.payload)
-          router.replace(`/${i18n.language}/rooms/${roomId}`)
+          // _gameStore.updateStatus(GameStatus.COMPLETED)
+          // _gameStore.setEnded(true)
+          if (message.payload.gameId === gameStoreRef.current.game.gameId){
+            _gameStore.setWinner(message.payload)
+            _gameStore.resetGameState()
+            router.replace(`/${i18n.language}/rooms/${roomId}`)
+            _gameStore.setClaiming(false)
+
+          }
           break
         case "game.cardSelected":
+          // console.log("======================CARD SELECTED==============>>>: ", message.payload.cardId)
           _gameStore.selectCard(message.payload.cardId, message.payload.playerId)
           break
         case "game.cardReleased":
           _gameStore.releaseCard(message.payload.cardId)
           break
         case "room.serverGameState":
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  GAME STATE:", message.payload.gameState)
+          // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  GAME STATE:", message.payload.gameState)
           _gameStore.resetGameState()
           if (message.payload.success && message.payload.gameState) {
             _gameStore.setGameState(message.payload.gameState)
           }
           break
         case "card.markNumberResponse":
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>  MARK NUMBER RESPONSE:", message.payload)
+          // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>  MARK NUMBER RESPONSE:", message.payload)
           _gameStore.setMarkedNumbersForACard(message.payload.cardId, message.payload.numbers)
           break
         case "card.unmarkNumberResponse":
@@ -152,6 +169,10 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           break
         case "error":
           console.error("WebSocket Error:", message.payload.message)
+          if (message.payload.eventType === "bingo.claim"){
+            _gameStore.setClaimError(message.payload)
+            _gameStore.setClaiming(false)
+          }
           break
         default:
           console.warn("Unhandled WebSocket message type:", message.type)

@@ -8,25 +8,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-    ChevronLeft,
-    ChevronRight,
-    Star,
-    MapPin,
-    Quote,
     Home,
-    Briefcase,
-    FileText,
-    MessageSquare,
-    Settings,
     LogOut,
 } from "lucide-react"
-import { useSession } from "@/hooks/use-session";
 import { Button } from "../ui/button";
-import { ModeToggle } from "../mode-toggle";
 import { logout } from "../auth/logout";
-import { useUserProfile } from "@/hooks/use-user-profile";
 import { userStore } from "@/lib/stores/user-store";
-import { use } from "i18next";
 
 
 export default function HeaderUserDropdown() {

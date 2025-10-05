@@ -93,6 +93,12 @@ export enum BingoColumn {
   O = "O",
 }
 
+export interface CardInfo {
+  cardId: string;
+  numbers: Partial<Record<BingoColumn, number[]>>;
+  marked: number[];
+}
+
 export enum UserStatus {
   ACTIVE = "ACTIVE",
   INACTIVE = "BANNED",
@@ -106,11 +112,6 @@ export enum UserRole {
   // add other roles as needed
 }
 
-export interface CardInfo {
-  cardId: string;
-  numbers: Partial<Record<BingoColumn, number[]>>;
-  marked: number[];
-}
 
 export enum GameStatus {
   READY = "READY",
@@ -134,7 +135,7 @@ export enum RoomStatus {
 }
 
 export interface GameWinner {
-  gameId: number,
+  gameId: number
   playerId: string
   playerName: string
   cardId: string
@@ -142,6 +143,8 @@ export interface GameWinner {
   prizeAmount: number
   winAt: string
   hasWinner: boolean
+  markedNumbers?: number[]
+  card?: CardInfo
 }
 
 export interface GameState {
@@ -188,6 +191,7 @@ export interface GameState {
 
   // Countdown timer in seconds (if applicable)
   countdown: number;
+  endTime: string;
 
   // Stop flag for number drawing
   stopNumberDrawing: boolean;
@@ -200,6 +204,10 @@ export interface PlayerState {
 
   // Map of cardId -> CardInfo
   cards: Record<string, CardInfo>;
+}
+
+export interface ClaimError {
+  [key: string]: any
 }
 
 
@@ -318,6 +326,8 @@ export interface PlayerLeft extends WSMessage {
     playerId: string
     playersCount: number
     joinedPlayers: string[]
+    releasedCardsIds?: string[]
+    roomId: number
   }
 }
 
@@ -452,9 +462,9 @@ export interface UnmarkNumberResponse extends WSMessage {
 export interface GameStarted extends WSMessage {
   type: "game.started"
   payload: {
-    startedAt: string
-    started: boolean
-    status: GameStatus
+    message: string
+    roomId: number
+    gameId: number
   }
 }
 
@@ -467,14 +477,19 @@ export interface NumberDrawn extends WSMessage {
   }
 }
 
+
+export interface BingoClaimRequestPayloadType {
+  gameId: number
+  cardId: string
+  pattern: GamePattern
+  playerId: string
+  playerName: string
+  markedNumbers: number[]
+}
+
 export interface BingoClaimRequest extends WSMessage {
   type: "game.bingoClaimRequest"
-  payload: {
-    playerId: number
-    cardId: number
-    pattern: GamePattern
-    markedNumbers: number[]
-  }
+  payload: BingoClaimRequestPayloadType
 }
 
 
@@ -501,8 +516,10 @@ export interface WinnerDeclared extends WSMessage {
 export interface Countdown extends WSMessage {
   type: "game.countdown"
   payload: {
+    roomId: number
     gameId: number
-    seconds: number
+    seconds: number,
+    endTime: string
   }
 }
 
@@ -518,6 +535,8 @@ export interface ErrorMessage extends WSMessage {
   payload: {
     code?: number
     message: string
+    eventType?: string
+    errorType?: string
   }
 }
 
@@ -733,10 +752,4 @@ export interface ChargeRequest {
   amount: number
   roomId: string
   cardIds: number[]
-}
-
-export interface BingoClaimRequest {
-  roomId: string
-  cardId: number
-  pattern: GamePattern
 }

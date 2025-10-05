@@ -1,15 +1,14 @@
-import { create, useStore } from "zustand"
+import { create } from "zustand"
 import { GamePattern, GameStatus as Status } from "@/lib/types"
-import type { GameState, GameStatus, CardInfo, GameWinner, WSPayload } from "@/lib/types"
-import { error } from "console";
-import { useSession } from "@/hooks/use-session";
-import { useUserProfile } from "@/hooks/use-user-profile";
+import type { GameState, GameStatus, CardInfo, GameWinner, WSPayload, ClaimError } from "@/lib/types"
 import { userStore } from "./user-store";
 
 interface GameStore {
   game: GameState
-  winner: GameWinner;
+  winner: GameWinner
   error: string | null
+  claimError: ClaimError | null
+  claiming: boolean
 
   // Actions
   setGameState: (game: Partial<GameState>) => void
@@ -42,9 +41,14 @@ interface GameStore {
   // claimBingo: (gameId: number, markedNumbers: number[]) => void
   handleBingoClaimResponse: (payload: WSPayload) => void
   setCountdown: (seconds: number) => void
+  setCountdownWithEndTime: (seconds: number, endTime: string) => void
   setWinner: (winner: GameWinner) => void
   resetWinner: () => void
   setError: (error: string | null) => void
+  setClaimError: (error: ClaimError) => void
+  resetClaimError: () => void
+  setClaiming: (value: boolean) => void
+  
 }
 
 const initialGameState: GameState = {
@@ -53,6 +57,7 @@ const initialGameState: GameState = {
   joinedPlayers: [],
   playersCount: 0,
   drawnNumbers: [],
+  currentDrawnNumber: undefined,
   disqualifiedUsers: [],
   amIDisqualified: false,
   currentCardPool: [],
@@ -65,6 +70,7 @@ const initialGameState: GameState = {
   status: Status.READY,
   stopNumberDrawing: false,
   countdown: -1,
+  endTime: ""
 }
 
 const initialWinnerState: GameWinner ={
@@ -75,7 +81,7 @@ const initialWinnerState: GameWinner ={
   pattern: GamePattern.LINE_AND_CORNERS,
   prizeAmount: 0,
   winAt: "",
-  hasWinner: false
+  hasWinner: false,
 }
 
 const maxCards = 2
@@ -86,6 +92,8 @@ export const useGameStore = create<GameStore>()(
       game: initialGameState,
       winner: initialWinnerState,
       error: null,
+      claimError: null,
+      claiming: false,
 
       setGameState: (game) =>
         set((state) => ({ game: { ...state.game, ...game } })),
@@ -235,6 +243,8 @@ export const useGameStore = create<GameStore>()(
             newUserSelectedCards = game.currentCardPool.filter((card) =>
               newUserSelectedIds.includes(card.cardId)
             )
+
+            console.log("=======================>>SELECTED CARDS============>>>: ", game.allCardIds.length)
           }
 
           return {
@@ -390,7 +400,28 @@ export const useGameStore = create<GameStore>()(
           },
         })),
 
+        setCountdownWithEndTime: (seconds, endTime) =>
+        set((state) => ({
+          game: {
+            ...state.game,
+            countdown: seconds,
+            endTime: endTime,
+            status: seconds > 0 ? Status.COUNTDOWN : state.game.status,
+          },
+        })),
+
+      setClaimError: (error: ClaimError) => set((state) => ({
+        claimError: error? {...error}: null
+      })),
+
+      resetClaimError: () => set((state) => ({
+        claimError: null
+      })),
+
       setError: (error) => set({ error }),
+
+    setClaiming: (value: boolean) =>
+      set({ claiming: value }),
 
       updateStatus: (status) =>
         set((state) => ({

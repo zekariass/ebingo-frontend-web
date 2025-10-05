@@ -2,10 +2,10 @@
 
 import { useCallback } from "react"
 import { useRoomSocket } from "./use-room-socket"
-import type { BingoClaimRequest } from "@/lib/types"
-import { useUserProfile } from "@/hooks/use-user-profile"
+import type { BingoClaimRequestPayloadType } from "@/lib/types"
 import { useSession } from "@/hooks/use-session"
 import { useRoomStore } from "@/lib/stores/room-store"
+import { useGameStore } from "@/lib/stores/game-store"
 
 interface UseWebSocketEventsOptions {
   roomId: number
@@ -18,10 +18,12 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
   const { session, user } = useSession()
 
   const capacity = useRoomStore((state) => state.room?.capacity);
+  const setClaiming = useGameStore(state => state.setClaiming)
 
 
   const enterRoom = useCallback(() => {
     if (!socket || !roomId || !user?.id) return
+    console.log("=========================>>>>>: CAPACITY: ", capacity)
     socket.send({
       type: "room.getGameStateRequest",
       payload: { roomId, playerId: user?.id, capacity },
@@ -116,12 +118,14 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
 
   // ✅ Claim Bingo
   const claimBingo = useCallback(
-    (request: BingoClaimRequest) => {
+    (request: BingoClaimRequestPayloadType) => {
+      setClaiming(true)
       if (!socket) return
       socket.send({
         type: "game.bingoClaimRequest",
         payload: request,
       })
+
     },
     [socket]
   )

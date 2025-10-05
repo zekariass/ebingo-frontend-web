@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { ApiResponse } from "@/lib/backend/types";
 import { createClient } from "@/lib/supabase/server";
+import { use } from "i18next";
 
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;
 
@@ -32,6 +33,8 @@ export async function GET() {
     }
 
     const accessToken = session.access_token;
+
+    console.log("=====================USER==============>>>>: ", user.id)
 
     // ✅ Call backend with verified user ID
     const response = await fetch(

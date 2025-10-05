@@ -7,12 +7,12 @@ import { CardSelectionGrid } from "./card-selection-grid"
 import { SelectedCardsPanel } from "./selected-cards-panel"
 import { NumberCallingArea } from "./number-calling-area"
 import { GameControls } from "./game-controls"
-// import { generateBingoCard } from "@/lib/utils/bingo"
 import { useGameStore } from "@/lib/stores/game-store"
 import { WinnerDialog } from "./winner/winner-dialog"
 import { GameStatus } from "@/lib/types"
-import { useRoomSocket } from "@/lib/hooks/websockets/use-room-socket"
 import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
+import { userStore } from "@/lib/stores/user-store"
+import { usePaymentStore } from "@/lib/stores/payment-store"
 
 interface RoomViewProps {
   roomId: number
@@ -22,31 +22,38 @@ export function RoomView({ roomId }: RoomViewProps) {
   const { room, fetchRoom, resetRoom, getRoomFromLobby, setRoom, initializeRoom } = useRoomStore()
   const {game: {userSelectedCardsIds, countdown, status}} = useGameStore()
   const winner = useGameStore(state => state.winner)
-  const resetGame = useGameStore(state => state.resetGameState)
   const resetWinner = useGameStore(state => state.resetWinner)
   const {enterRoom} = useWebSocketEvents({roomId, enabled: true})
+  const fetchUserProfile = userStore(state => state.fetchUserProfile)
+  const {fetchWallet} = usePaymentStore()
+
 
   const disableCardSelection = (countdown < 10 && countdown !== -1) || (status === GameStatus.PLAYING)
 
   const onGameWinnerClose = () => {
-    // resetGame()
     resetWinner()
-    // enterRoom();
   }
 
-  useEffect(()=>{
-    enterRoom()
-  }, [])
+  useEffect(() => {
+  const init = async () => {
+    try {
+      await enterRoom()
+      await Promise.all([
+        fetchUserProfile(),
+        fetchWallet(),
+      ])
+    } catch (err) {
+      console.error("Failed to initialize room/payment data:", err)
+    }
+  }
 
-  // const { connected, enterRoom } = useWebSocketEvents({ roomId })
+  init()
+}, [])
 
-  // const {t, i18n} = useTranslation("common")
-  // console.log("=============================>>>> RoomView Rendered with selected cards:", userSelectedCardsIds)
 
   useEffect(() => {
     resetRoom()
     fetchRoom(roomId)
-    // getRoomFromLobby(roomId)
   }, [roomId, fetchRoom])
 
 
@@ -58,7 +65,6 @@ export function RoomView({ roomId }: RoomViewProps) {
     )
   }
 
-  // const isPracticeRoom = roomId === "test-room-1"
 
   return (
     <div className="min-h-screen bg-background">

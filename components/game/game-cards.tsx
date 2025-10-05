@@ -1,6 +1,5 @@
 "use client"
 
-import { useRoomStore } from "@/lib/stores/room-store"
 import { GameBingoCard } from "./game-bingo-card"
 import { useGameStore } from "@/lib/stores/game-store"
 

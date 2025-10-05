@@ -1,10 +1,8 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { Room, GamePattern} from "@/lib/types"
+import type { Room,} from "@/lib/types"
 import i18n from "@/i18n"
 import { useLobbyStore } from "./lobby-store"
-import { ApiResponse } from "../backend/types"
-// import { generateBingoCard } from "@/lib/utils/bingo"
 
 interface RoomState {
   // Room data
@@ -39,6 +37,7 @@ export const useRoomStore = create<RoomState>()(
       // Actions
       setRoom: (room) => set({ room }),
       fetchRoom: async (roomId) => {
+        if (get().room) return get().room
         try {
           const response = await fetch(`/${i18n.language}/api/rooms/${roomId}`);
           if (!response.ok) {

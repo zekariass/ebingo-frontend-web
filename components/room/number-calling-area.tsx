@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { PatternDisplay } from "./pattern-display"
 import { GameTimerDisplay } from "./game-timer-display"
-import { PatternProgress } from "./pattern-progress"
+// import { PatternProgress } from "./pattern-progress"
 import { formatBingoNumber } from "@/lib/utils/bingo"
 import { History, Volume2, VolumeX, Target } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -71,7 +71,7 @@ export function NumberCallingArea() {
       
 
       {/* Pattern Progress */}
-      <PatternProgress />
+      {/* <PatternProgress /> */}
 
       <Dialog>
         <DialogTrigger asChild>

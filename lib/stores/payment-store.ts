@@ -169,9 +169,10 @@ export const usePaymentStore = create<PaymentState>()(
 
       // Async actions to fetch from DB
       fetchWallet: async () => {
+        if (get().balance.id) return
         set({ loading: true, error: null })
         try {
-          const response = await fetch(`${i18n.language}/api/payments/wallet`)
+          const response = await fetch(`/${i18n.language}/api/payments/wallet`)
           if (!response.ok) throw new Error("Failed to fetch wallet")
           const result = await response.json()
           const {data} = result
@@ -190,9 +191,10 @@ export const usePaymentStore = create<PaymentState>()(
 
 
       fetchPaymentMethods: async () => {
+        if (get().paymentMethods) return
         set({ loading: true, error: null })
         try {
-          const response = await fetch(`${i18n.language}/api/payments/methods`)
+          const response = await fetch(`/${i18n.language}/api/payments/methods`)
           if (!response.ok) throw new Error("Failed to fetch payment methods")
           const result = await response.json()
           const {data} = result
@@ -204,6 +206,7 @@ export const usePaymentStore = create<PaymentState>()(
 
 
       fetchTransactions: async (page, number) => {
+      if (get().transactions) return;
       set({ loading: true, error: null });
       try {
         // Build URL with query parameters
@@ -217,7 +220,7 @@ export const usePaymentStore = create<PaymentState>()(
         const result = await response.json();
         const { data } = result;
 
-        console.log("===================TXN=========>>> Fetched Transactions:", data);
+        // console.log("===================TXN=========>>> Fetched Transactions:", data);
 
 
         set({ transactions: data, loading: false });

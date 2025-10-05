@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useLobbyStore } from "@/lib/stores/lobby-store"
-import { useRoomStore } from "@/lib/stores/room-store"
 import { LobbyHeader } from "./lobby-header"
 import { LobbyFilters } from "./lobby-filters"
 import { RoomGrid } from "./room-grid"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { usePaymentStore } from "@/lib/stores/payment-store"
-import { useUserProfile } from "@/hooks/use-user-profile"
 import { userStore } from "@/lib/stores/user-store"
 
 export function Lobby() {
@@ -19,9 +17,6 @@ export function Lobby() {
 
   const [currentTxnPage, setCurrentTxnPage] = useState<number>(1)
   const [currentTxnSize, setCurrentTxnSize] = useState<number>(10)
-
-  // const {} = useUserProfile()
-  // const { balance } = useRoomStore()
 
   useEffect(() => {
     fetchRooms()

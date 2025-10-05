@@ -19,6 +19,8 @@ export const userStore = create<UserState>()(
     setUser: (user) => set({ user }),
     resetUser: () => set({ user: null }),
     fetchUserProfile: async () => {
+        // If user is already set, return without fetching from db
+        if (get().user) return get().user
         try {
 
             set({ loading: true, error: null });
