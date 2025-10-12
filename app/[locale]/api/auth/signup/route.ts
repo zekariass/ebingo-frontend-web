@@ -3,6 +3,9 @@ import { signupSchema, SignupFormData } from "@/lib/validation/signup-validation
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin-client";
 
+
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;
+
 export async function POST(req: NextRequest) {
   let supabaseId = null;
   const supabase = await createClient();
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
     supabaseId = data.user.id;
 
     // Save additional info to backend DB
-    const backendResponse = await fetch("http://localhost:8080/api/v1/public/user-profile/create", {
+    const backendResponse = await fetch(`${BACKEND_BASE_URL}/api/v1/public/user-profile/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +53,6 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    console.log("==================================>>>: backendResponse "+ backendResponse)
 
     if (!backendResponse.ok) {
        

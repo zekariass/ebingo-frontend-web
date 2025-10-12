@@ -23,7 +23,7 @@ interface SocketState {
   reconnectAttempts: number
 }
 
-const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws"
+// const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL!
 const MAX_RECONNECT_ATTEMPTS = 3
 const INITIAL_RECONNECT_DELAY = 2000
 const MAX_RECONNECT_DELAY = 10000
@@ -153,14 +153,14 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           }
           break
         case "game.cardSelected":
-          console.log("======================CARD SELECTED==============>>>: ", message.payload.cardId)
+          // console.log("======================CARD SELECTED==============>>>: ", message.payload.cardId)
           _gameStore.selectCard(message.payload.cardId, message.payload.playerId)
           break
         case "game.cardReleased":
           _gameStore.releaseCard(message.payload.cardId)
           break
         case "room.serverGameState":
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  GAME STATE:", message.payload.gameState)
+          // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  GAME STATE:", message.payload.gameState)
           _gameStore.resetGameState()
           if (message.payload.success && message.payload.gameState) {
             _gameStore.setGameState(message.payload.gameState)
@@ -217,7 +217,9 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
       })
 
       try {
-        const wsUrl = `ws://localhost:8080/ws/game?roomId=${roomId}&token=${encodeURIComponent(token)}`
+
+        const WS_API_BASE = process.env.NEXT_PUBLIC_WS_URL!
+        const wsUrl = `${WS_API_BASE}/game?roomId=${roomId}&token=${encodeURIComponent(token)}`
         // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Connecting to WebSocket URL:", wsUrl)
         const ws = new WebSocket(wsUrl)
         wsRef.current = ws

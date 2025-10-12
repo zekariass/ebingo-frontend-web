@@ -1,8 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import type { ApiResponse } from "@/lib/backend/types"
 
-const BACKEND_BASE_URL =
-  process.env.BACKEND_BASE_URL || "http://localhost:8080"
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!
 
 export async function GET(
   request: NextRequest,
