@@ -22,7 +22,7 @@ export default function RootLayout({ children }: LayoutProps) {
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Suspense fallback={<h1>Loading...</h1>}>
           <I18nProvider fallbackLocale="en">
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false} storageKey="bingo-theme">
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange={false} storageKey="bingo-theme">
               <QueryProvider>
                 <div className="flex justify-end">
                   <LanguageSwitcher />
