@@ -48,7 +48,7 @@ export function RoomView({ roomId }: RoomViewProps) {
       await enterRoom()
       await Promise.all([
         fetchUserProfile(),
-        fetchWallet(),
+        fetchWallet(true),
       ])
     } catch (err) {
       console.error("Failed to initialize room/payment data:", err)

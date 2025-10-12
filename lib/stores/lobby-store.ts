@@ -1,7 +1,5 @@
 import { create } from "zustand"
 import type { Room } from "@/lib/types"
-import { apiClient } from "@/lib/api/client"
-import { useTheme } from "next-themes"
 import i18n from "@/i18n"
 
 interface LobbyState {
