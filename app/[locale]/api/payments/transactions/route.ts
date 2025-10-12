@@ -12,13 +12,13 @@ export async function GET(req: NextRequest) {
 
     const supabase = await createClient();
 
-    // ✅ Securely authenticate user
+    // Securely authenticate user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ Get access token
+    // Get access token
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -27,9 +27,9 @@ export async function GET(req: NextRequest) {
     const token = session.access_token;
     const userSupabaseId = user.id;
 
-    // ✅ Collect query parameters from frontend request
+    // Collect query parameters from frontend request
     const { searchParams } = new URL(req.url);
-    const page = searchParams.get("page") || "0";
+    const page = searchParams.get("page") || "1";
     const size = searchParams.get("size") || "10";
     const sortBy = "createdAt";
 
@@ -38,9 +38,9 @@ export async function GET(req: NextRequest) {
       "Authorization": `Bearer ${token}`,
     };
 
-    // ✅ Forward query params to backend
+    // Forward query params to backend
     const backendUrl = new URL(`${BACKEND_BASE_URL}/api/v1/secured/transactions`);
-    backendUrl.searchParams.append("userSupabaseId", userSupabaseId);
+    // backendUrl.searchParams.append("userSupabaseId", userSupabaseId);
     backendUrl.searchParams.append("page", page);
     backendUrl.searchParams.append("size", size);
     backendUrl.searchParams.append("sortBy", sortBy);

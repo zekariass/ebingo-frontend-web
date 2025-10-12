@@ -5,7 +5,7 @@ import { useGameStore } from "@/lib/stores/game-store"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, RefreshCcw, RefreshCwIcon } from "lucide-react"
 import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { userStore } from "@/lib/stores/user-store"
 
@@ -51,7 +51,7 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
     if (userSelectedCardsIds.includes(cardId) && user?.supabaseId) {
       releaseCardBackend(gameId, cardId)
     } else if (!takenCards.has(cardId) && userSelectedCardsIds.length < maxCards && user?.supabaseId) {
-    console.log("========== CARD ID ======= ", cardId , " =======SUPABASEID=========", user?.supabaseId)
+    // console.log("========== CARD ID ======= ", cardId , " =======SUPABASEID=========", user?.supabaseId)
 
       selectCardBackend(gameId, cardId)
     }
@@ -153,7 +153,18 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
               </Button>
             )
           })}
+
+         
         </div>
+        <div className="">
+            {!paginatedCards.length && (
+              <RefreshCwIcon
+                onClick={() => window.location.reload()}
+                className="cursor-pointer flex items-center justify-center w-full" // ✅ make SVG block
+                size={64}
+              />
+            )}
+          </div>
 
         {userSelectedCardsIds.length >= maxCards && (
           <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">

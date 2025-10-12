@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -28,7 +28,7 @@ interface DepositDialogProps {
 
 export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
   const [isProcessing, setIsProcessing] = useState(false)
-  const { paymentMethods, getDefaultPaymentMethod, balance, setBalance, addTransaction } = usePaymentStore()
+  const { paymentMethods, addDeposit, fetchPaymentMethods, getDefaultPaymentMethod, balance, setBalance, addTransaction } = usePaymentStore()
 
   const {
     register,
@@ -48,64 +48,57 @@ export function DepositDialog({ open, onOpenChange }: DepositDialogProps) {
   const selectedAmount = watch("amount")
   const quickAmounts = [25, 50, 100, 200]
 
+  useEffect(()=>{
+    fetchPaymentMethods()
+  }, [fetchPaymentMethods])
+
   const onSubmit = async (data: DepositForm) => {
     setIsProcessing(true)
 
     try {
-      const result = await paymentApiClient.deposit({
-        amount: data.amount,
-        paymentMethodId: data.paymentMethodId,
-      })
+      // const result = await paymentApiClient.deposit({
+      //   amount: data.amount,
+      //   paymentMethodId: data.paymentMethodId,
+      // })
 
-      if (result.success) {
+
+      addDeposit(data.amount, data.paymentMethodId)
+
+      // if (result.success) {
         // Update balance
-        const newBalance = {
-          ...balance,
-          totalAvailableBalance: balance.totalAvailableBalance + data.amount,
-          depositBalance: balance.depositBalance + data.amount,
-        }
-        setBalance(newBalance)
+        // const newBalance = {
+        //   ...balance,
+        //   totalAvailableBalance: balance.totalAvailableBalance + data.amount,
+        //   depositBalance: balance.depositBalance + data.amount,
+        // }
+        // setBalance(newBalance)
 
         // Add transaction record
-        addTransaction({
-          id: result.transactionId!,
-          userProfileId: 1,
-          transferTo: null,
-          txnType: "DEPOSIT",
-          txnAmount: data.amount,
-          status: "COMPLETED",
-          description: `Deposit via payment method`,
-          createdAt: new Date().toISOString(),
-          paymentMethodId: data.paymentMethodId
-        })
+        // addTransaction({
+        //   id: result.transactionId!,
+        //   userProfileId: 1,
+        //   transferTo: null,
+        //   txnType: "DEPOSIT",
+        //   txnAmount: data.amount,
+        //   status: "COMPLETED",
+        //   description: `Deposit via payment method`,
+        //   createdAt: new Date().toISOString(),
+        //   paymentMethodId: data.paymentMethodId
+        // })
 
-        console.log(`Deposit Successful: $${data.amount.toFixed(2)} has been added to your wallet`)
+        // console.log(`Deposit Successful: $${data.amount.toFixed(2)} has been added to your wallet`)
 
         reset()
         onOpenChange(false)
-      } else {
-        throw new Error(result.error || "Deposit failed")
-      }
+      // } else {
+      //   throw new Error(result.error || "Deposit failed")
+      // }
     } catch (error) {
       console.error("Deposit Failed:", error instanceof Error ? error.message : "Please try again")
     } finally {
       setIsProcessing(false)
     }
   }
-
-  // const getPaymentMethodDisplay = (method: PaymentMethod) => {
-  //   switch (method.) {
-  //     case "credit_card":
-  //     case "debit_card":
-  //       return `${method.brand} ****${method.last4}`
-  //     case "paypal":
-  //       return "PayPal Account"
-  //     case "bank_account":
-  //       return `Bank ****${method.last4}`
-  //     default:
-  //       return method.nickname || method.type
-  //   }
-  // }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -7,22 +7,33 @@ import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components
 import { TransactionHistory } from "@/components/payment/transaction-history"
 import { History, Settings, Wallet } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "@/hooks/use-session"
 import HeaderUserDropdown from "./header-user-dropdown"
 import LoginButton from "../auth/login-button"
 import SignupButton from "../auth/signup-button"
-import { LanguageSwitcher } from "../ui/language-switcher"
 import { DialogTitle } from "@radix-ui/react-dialog"
 import { userStore } from "@/lib/stores/user-store"
 import { UserRole } from "@/lib/types"
+import { usePaymentStore } from "@/lib/stores/payment-store"
+import { GameTransactionHistory } from "../payment/game-transaction-history"
 
 export function LobbyHeader() {
   const [walletOpen, setWalletOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [gameHistoryOpen, setGameHistoryOpen] = useState(false)
 
   const {user, loading} = useSession();
   const {user: dbUser} = userStore();
+
+
+  // const {transactions, fetchTransactions} = usePaymentStore()
+
+  //  useEffect(() => {
+  //   // if (transactions.length === 0) {
+  //     fetchTransactions(1, 10)
+  //   // }
+  // }, [fetchTransactions])
 
   return (
     <>
@@ -66,16 +77,34 @@ export function LobbyHeader() {
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
                     <History className="h-4 w-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">History</span>
+                    <span className="hidden sm:inline">Transactions</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>
-                      Your Transaction History
+                      Deposits and Withdrawals
                     </DialogTitle>
                   </DialogHeader>
                   <TransactionHistory />
+                </DialogContent>
+              </Dialog>
+
+
+              <Dialog open={gameHistoryOpen} onOpenChange={setGameHistoryOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <History className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Game Payments</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Game fees and prizes
+                    </DialogTitle>
+                  </DialogHeader>
+                  <GameTransactionHistory />
                 </DialogContent>
               </Dialog>
 

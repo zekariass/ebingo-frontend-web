@@ -27,20 +27,64 @@ export type ApiResponse<T> = {
 
 
 
-export type TransactionType = "DEPOSIT" | "WITHDRAWAL" | "TRANSFER";
-export type TransactionStatus = "PENDING" | "AWAITING_APPROVAL" | "COMPLETED" | "FAILED";
+export type TransactionType = "DEPOSIT" | "WITHDRAWAL" | "DISPUTE";
+export type TransactionStatus = "PENDING" | "AWAITING_APPROVAL" | "COMPLETED" | "FAILED" | "CANCELLED" | "REJECTED";
+
+// export interface Transaction {
+//   id: number;
+//   userProfileId: number;
+//   transferTo?: number | null;
+//   paymentMethodId: number;
+//   txnType: TransactionType;
+//   txnAmount: number;
+//   status: TransactionStatus;
+//   description?: string;
+//   createdAt: string
+// }
 
 export interface Transaction {
   id: number;
-  userProfileId: number;
-  transferTo?: number | null;
+  playerId: number;
+  txnRef: string;
   paymentMethodId: number;
   txnType: TransactionType;
   txnAmount: number;
   status: TransactionStatus;
-  description?: string;
-  createdAt: string
+  description?: string | null;
+  metaData?: Record<string, any> | null;
+  approvedBy?: number | null;
+  approvedAt?: Date | null;
+  createdAt: string; // ISO timestamp
+  updatedAt: string; // ISO timestamp
 }
+
+
+export enum GameTransactionType {
+    GAME_FEE = 'GAME_FEE',
+    PRIZE_PAYOUT = 'PRIZE_PAYOUT',
+    REFUND = 'REFUND',
+    DISPUTE = 'DISPUTE'
+}
+
+export enum GameTransactionStatus {
+    PENDING = 'PENDING',
+    SUCCESS = 'SUCCESS',
+    FAIL = 'FAIL',
+    AWAITING_APPROVAL = 'AWAITING_APPROVAL',
+    CANCELLED = 'CANCELLED'
+}
+
+export interface GameTransaction {
+    id: number;
+    gameId: number;
+    playerId: number;
+    txnAmount: number; // or string if you want to store precise decimals
+    txnType: GameTransactionType;
+    txnStatus: GameTransactionStatus;
+    createdAt: string; // ISO timestamp
+    updatedAt: string; // ISO timestamp
+}
+
 
 export interface PaymentMethod {
   id: number;
@@ -190,11 +234,11 @@ export interface GameState {
   status: GameStatus;
 
   // Countdown timer in seconds (if applicable)
-  countdown: number;
-  endTime: string;
+  countdownEndTime: string;
 
   // Stop flag for number drawing
   stopNumberDrawing: boolean;
+  loading: boolean
 
 }
 
@@ -328,6 +372,7 @@ export interface PlayerLeft extends WSMessage {
     joinedPlayers: string[]
     releasedCardsIds?: string[]
     roomId: number
+    errorType?: string
   }
 }
 
@@ -483,6 +528,7 @@ export interface BingoClaimRequestPayloadType {
   cardId: string
   pattern: GamePattern
   playerId: string
+  userProfileId?: number,
   playerName: string
   markedNumbers: number[]
 }
@@ -519,7 +565,7 @@ export interface Countdown extends WSMessage {
     roomId: number
     gameId: number
     seconds: number,
-    endTime: string
+    countdownEndTime: string
   }
 }
 
@@ -543,6 +589,11 @@ export interface ErrorMessage extends WSMessage {
 
 export interface PongMessage extends WSMessage {
   type: "pong"
+  payload: any
+}
+
+export interface PingMessage extends WSMessage {
+  type: "ping"
   payload: any
 }
 
@@ -580,7 +631,7 @@ export type WSResponseEvent =
   | GameEnded
 
 
-export type WSEvent = WSRequestEvent | WSResponseEvent | PongMessage
+export type WSEvent = WSRequestEvent | WSResponseEvent | PongMessage | PingMessage
 
 
 

@@ -16,6 +16,9 @@ interface LayoutProps {
 export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
+      <head>
+        <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Suspense fallback={<h1>Loading...</h1>}>
           <I18nProvider fallbackLocale="en">

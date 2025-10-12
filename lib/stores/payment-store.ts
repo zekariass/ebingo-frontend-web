@@ -1,14 +1,16 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
-import type { ApiResponse, PaymentMethod, Transaction, WalletBalance } from "@/lib/types"
+import type { GameTransaction, PaymentMethod, Transaction, WalletBalance } from "@/lib/types"
 import i18n from "@/i18n"
+import { $ZodEmail } from "zod/v4/core"
 
 interface PaymentState {
   balance: WalletBalance
   paymentMethods: PaymentMethod[]
   transactions: Transaction[]
+  gameTransactions: GameTransaction[]
   loading: boolean
   error: string | null
+  gameError: String | null
 
   // Actions
   resetBalance: () => void
@@ -26,15 +28,33 @@ interface PaymentState {
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
 
+  // Game Txns
+  resetGameTxns: () => void
+  setGameTxns: (txns: GameTransaction[]) => void
+  fetchGameTransactions: (page: number, size: number, sortBy: string, refresh: boolean) => void
+
   // Computed
   getDefaultPaymentMethod: () => PaymentMethod | null
   getPendingTransactions: () => Transaction[]
   getRecentTransactions: (limit?: number) => Transaction[]
 
   // From DB
-  fetchWallet: () => Promise<void>
+  fetchWallet: (refresh: boolean) => Promise<void>
   fetchPaymentMethods: () => Promise<void>
-  fetchTransactions: (page: number, size: number) => Promise<void>
+  fetchTransactions: (page: number, size: number, refresh: boolean) => Promise<void>
+  transferFunds: (amount: number, email: string) => Promise<void>
+
+  // Deposit
+  addDeposit: (amount: number, paymentMethodId: number) => Promise<void>
+  // getPendingDeposits: () => number
+
+  // Withdraw
+  withdrawFund: (paymentMethodId: number,
+                  amount: number,
+                  bankName: string,
+                  accountName: string,
+                  accountNumber: string
+  ) => Promise<void>
 }
 
 export const usePaymentStore = create<PaymentState>()(
@@ -58,8 +78,10 @@ export const usePaymentStore = create<PaymentState>()(
       },
       paymentMethods: [],
       transactions: [],
+      gameTransactions: [],
       loading: false,
       error: null,
+      gameError: null,
 
       // Actions
       resetBalance: () => set({ balance: {
@@ -128,7 +150,10 @@ export const usePaymentStore = create<PaymentState>()(
         }))
       },
 
-      setTransactions: (transactions) => set({ transactions }),
+      setTransactions: (transactions) =>
+         set(()=>({
+          transactions: Array.isArray(transactions)? [...transactions] : []
+         })),
 
       addTransaction: (transaction) =>
         set((state) => ({
@@ -166,10 +191,44 @@ export const usePaymentStore = create<PaymentState>()(
           .slice(0, limit)
       },
 
+      resetGameTxns: () => set({
+        gameTransactions: []
+      }),
+
+      setGameTxns: (gameTxns: GameTransaction[]) =>
+         set({
+          gameTransactions: [...gameTxns]
+         }),
+
+
+      fetchGameTransactions: async (page: number, size: number, sortBy: string, refresh: boolean) => {
+        if (get().gameTransactions.length && !refresh) return
+        set({ loading: true, error: null })
+
+        try{
+
+          const url = new URL(`/${i18n.language}/api/payments/game-transactions`, window.location.origin);
+          url.searchParams.append('page', page.toString());
+          url.searchParams.append('size', size.toString());
+          url.searchParams.append('sortBy', sortBy.toString());
+
+          const response = await fetch(url.toString());
+          if (!response.ok) throw new Error("Failed to fetch transactions");
+
+          const result = await response.json();
+          const { data } = result;
+
+          set({ gameTransactions: data, loading: false });
+
+            }catch (error: any) {
+              set({ error: error.message || "Error fetching game transaction", loading: false })
+            }
+         },
+
 
       // Async actions to fetch from DB
-      fetchWallet: async () => {
-        if (get().balance.id) return
+      fetchWallet: async (refresh: boolean) => {
+        if (!refresh && get().balance.id) return
         set({ loading: true, error: null })
         try {
           const response = await fetch(`/${i18n.language}/api/payments/wallet`)
@@ -191,7 +250,7 @@ export const usePaymentStore = create<PaymentState>()(
 
 
       fetchPaymentMethods: async () => {
-        if (get().paymentMethods) return
+        if (get().paymentMethods.length) return
         set({ loading: true, error: null })
         try {
           const response = await fetch(`/${i18n.language}/api/payments/methods`)
@@ -205,14 +264,14 @@ export const usePaymentStore = create<PaymentState>()(
       },
 
 
-      fetchTransactions: async (page, number) => {
-      if (get().transactions) return;
+      fetchTransactions: async (page, size, refresh) => {
+      if (!refresh && get().transactions.length) return;
       set({ loading: true, error: null });
       try {
         // Build URL with query parameters
-        const url = new URL(`${i18n.language}/api/payments/transactions`, window.location.origin);
+        const url = new URL(`/${i18n.language}/api/payments/transactions`, window.location.origin);
         url.searchParams.append('page', page.toString());
-        url.searchParams.append('size', number.toString());
+        url.searchParams.append('size', size.toString());
 
         const response = await fetch(url.toString());
         if (!response.ok) throw new Error("Failed to fetch transactions");
@@ -220,14 +279,166 @@ export const usePaymentStore = create<PaymentState>()(
         const result = await response.json();
         const { data } = result;
 
-        // console.log("===================TXN=========>>> Fetched Transactions:", data);
-
-
-        set({ transactions: data, loading: false });
+        set({ transactions: Array.isArray(data)? [...data]: [], loading: false });
       } catch (error: any) {
         set({ error: error.message || "Error fetching transactions", loading: false });
       }
     },
+
+    transferFunds: async (amount: number, email: string) => {
+      set({ loading: true, error: null });
+
+      try {
+        // Build endpoint (multilingual support)
+        const url = new URL(`/${i18n.language}/api/payments/transfer`, window.location.origin);
+
+        // Make API call
+        const response = await fetch(url.toString(), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount, email }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || "Transfer failed");
+        }
+
+        const result = await response.json();
+        const { data } = result;
+
+        // Optionally refresh wallet balances or transactions
+        if (get().fetchWallet) {
+          await get().fetchWallet(true);
+        }
+
+        // Optionally update transactions list
+        if (data) {
+          set({
+            transactions: data,
+            loading: false,
+          });
+        } else {
+          set({ loading: false });
+        }
+
+      } catch (error: any) {
+        console.error("Transfer failed:", error);
+        set({
+          error: error.message || "Error transferring funds",
+          loading: false,
+        });
+      }
+    },
+
+    addDeposit: async (amount: number, paymentMethodId: number) => {
+        set({ loading: true, error: null });
+
+        try {
+          const paymentMethod = get().paymentMethods.find(pm => pm.id === paymentMethodId);
+
+          if (paymentMethod?.name.toLowerCase().includes("bank transfer")) {
+            const url = new URL(`/${i18n.language}/api/payments/deposit`, window.location.origin);
+
+            const response = await fetch(url.toString(), {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                amount,
+                paymentMethodId,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to create deposit");
+            }
+
+            const result = await response.json();
+            const { data } = result;
+
+            set({ transactions: data, loading: false });
+          } else {
+            throw new Error("Unsupported payment method");
+          }
+        } catch (error: any) {
+          set({
+            error: error.message || "Error creating deposit",
+            loading: false,
+          });
+        }
+      },
+
+      // getPendingDeposits: () => {
+      //   let pendingDeposits = 0.00;
+      //   get().transactions.forEach(txn => {
+      //     if (txn.txnType === "DEPOSIT" && (txn.status === "PENDING" || txn.status === "AWAITING_APPROVAL")){
+      //       pendingDeposits += txn.txnAmount;
+      //     }
+      //   })
+
+      //   return pendingDeposits
+      // },
+
+      withdrawFund: async (
+          paymentMethodId: number,
+          amount: number,
+          bankName: string,
+          accountName: string,
+          accountNumber: string
+        ) => {
+          set({ loading: true, error: null });
+
+          try {
+            const paymentMethod = get().paymentMethods.find(pm => pm.id === paymentMethodId);
+
+            if (!paymentMethod) {
+              throw new Error("Invalid payment method");
+            }
+
+            if (!paymentMethod.name.toLowerCase().includes("bank transfer")) {
+              throw new Error("Only bank transfer withdrawals are supported");
+            }
+
+            const url = new URL(`/${i18n.language}/api/payments/withdraw`, window.location.origin);
+
+            const response = await fetch(url.toString(), {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                paymentMethodId,
+                amount,
+                bankName,
+                accountName,
+                accountNumber,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to process withdrawal");
+            }
+
+            const result = await response.json();
+            const { data } = result;
+
+            set({
+              loading: false,
+            });
+
+          } catch (error: any) {
+            set({
+              error: error.message || "Error processing withdrawal",
+              loading: false,
+            });
+          }
+        },
+
+
 
     }),
     // {

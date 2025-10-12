@@ -8,7 +8,7 @@ import { useGameStore } from "@/lib/stores/game-store"
 import { useRoomStore } from "@/lib/stores/room-store"
 
 interface GameHeaderProps {
-  room: Room
+  room: Room | undefined | null
   connected: boolean
 }
 
@@ -52,9 +52,9 @@ export function GameHeader({ room, connected }: GameHeaderProps) {
             if (item === 3)
               return (
                 <div key={item} className="mr-1 px-2 bg-green-600 rounded-xs">
-                  <div className="text-center">Take</div>
+                  <div className="text-center">Prize</div>
                   <div className="text-center">
-                    Br {game.userSelectedCards.length * room.entryFee * 0.75}
+                    Br {room ? game.userSelectedCards.length * room?.entryFee * 0.75: 0}
                   </div>
                 </div>
               );

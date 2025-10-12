@@ -7,63 +7,54 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { ArrowUpRight, ArrowDownLeft, CreditCard, RefreshCw, History } from "lucide-react"
-import { TransactionStatus, TransactionType } from "@/lib/types"
+import { GameTransactionStatus, GameTransactionType, TransactionStatus, TransactionType } from "@/lib/types"
 import { useEffect } from "react"
 
-export function TransactionHistory() {
-  const { transactions, setTransactions, getRecentTransactions, fetchTransactions, loading, setLoading, error, setError } =
-    usePaymentStore()
+export function GameTransactionHistory() {
+  const { gameTransactions, fetchGameTransactions, loading, error } = usePaymentStore()
 
-  const refreshTransactions = async (refresh: boolean) => {
-    fetchTransactions(1, 10, refresh)
-
-  //   try {
-  //     const newTransactions = await paymentApiClient.getTransactions()
-  //     setTransactions(newTransactions)
-  //   } catch (error) {
-  //     setError(error instanceof Error ? error.message : "Failed to load transactions")
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const refreshTransactions = async () => {
+    fetchGameTransactions(1, 10, "createdAt", true)
   }
 
-  // useEffect(() => {
-  //   if (transactions.length === 0) {
-  //     refreshTransactions()
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (gameTransactions.length === 0) {
+      refreshTransactions()
+    }
+  }, [fetchGameTransactions, gameTransactions])
 
-  const getTransactionIcon = (type: TransactionType) => {
+  const getTransactionIcon = (type: GameTransactionType) => {
     switch (type) {
-      case "DEPOSIT":
-        return <ArrowDownLeft className="h-4 w-4 text-green-600" />
-      case "WITHDRAWAL":
-        return <ArrowUpRight className="h-4 w-4 text-red-600" />
-      case "DISPUTE":
-        return <CreditCard className="h-4 w-4 text-blue-600" />
+      case GameTransactionType.GAME_FEE:
+        return <ArrowDownLeft className="h-4 w-4 text-blue-600" />
+      case GameTransactionType.PRIZE_PAYOUT:
+        return <ArrowUpRight className="h-4 w-4 text-green-600" />
+      case GameTransactionType.REFUND:
+        return <CreditCard className="h-4 w-4 text-red-600" />
       default:
         return <CreditCard className="h-4 w-4 text-gray-600" />
     }
   }
 
-  const getStatusColor = (status: TransactionStatus) => {
+  const getStatusColor = (status: GameTransactionStatus) => {
     switch (status) {
-      case "COMPLETED":
+      case GameTransactionStatus.SUCCESS:
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      case "AWAITING_APPROVAL":
-        return "bg-yellow-100 text-blue-800 dark:bg-blue-900 dark:text-yellow-200"
-      case "PENDING":
-        return "bg-blue-100 text-yellow-800 dark:bg-yellow-900 dark:text-blue-200"
-      case "FAILED":
+      case GameTransactionStatus.AWAITING_APPROVAL:
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+      case GameTransactionStatus.PENDING:
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+      case GameTransactionStatus.FAIL:
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+      case GameTransactionStatus.CANCELLED:
+           return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
     }
   }
 
-  const formatAmount = (amount: number, type: TransactionType) => {
-    const isPositive = amount > 0 || type === "DEPOSIT"
+  const formatAmount = (amount: number, type: GameTransactionType) => {
+    const isPositive = amount > 0 || type === GameTransactionType.PRIZE_PAYOUT
     const prefix = isPositive ? "+" : ""
     const color = isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
 
@@ -92,9 +83,9 @@ export function TransactionHistory() {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
-            Transaction History
+            Game Transaction History
           </CardTitle>
-          <Button variant="outline" size="sm" onClick={() => refreshTransactions(true)} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={refreshTransactions} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -107,16 +98,16 @@ export function TransactionHistory() {
           </div>
         )}
 
-        {transactions.length === 0 ? (
+        {gameTransactions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <History className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p>No transactions yet</p>
             <p className="text-sm">Your transaction history will appear here</p>
           </div>
         ) : (
-          <ScrollArea className="h-96 overflow-x-auto">
-            <div className="space-y-3 min-w-full">
-              {(transactions?transactions:[]).map((transaction, index) => (
+          <ScrollArea className="h-96">
+            <div className="space-y-3">
+              {gameTransactions.map((transaction, index) => (
                 <div key={transaction.id}>
                   <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-3">
@@ -124,7 +115,7 @@ export function TransactionHistory() {
                       <div>
                         {/* <p className="font-medium text-sm">{transaction.description}</p> */}
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="secondary" className={`text-xs ${getStatusColor(transaction.status)}`}>
+                          <Badge variant="secondary" className={`text-xs ${getStatusColor(transaction.txnStatus)}`}>
                             {transaction.txnType}
                           </Badge>
                           <span className="text-xs text-muted-foreground">{formatDate(transaction.createdAt)}</span>
@@ -135,11 +126,7 @@ export function TransactionHistory() {
                     <div className="text-right">{formatAmount(transaction.txnAmount, transaction.txnType)}</div>
                   </div>
 
-                  <p className="text-xs">Ref: {transaction.txnRef}</p>
-
-
-                  {index < transactions.length - 1 && <Separator />}
-
+                  {index < gameTransactions.length - 1 && <Separator />}
                 </div>
               ))}
             </div>

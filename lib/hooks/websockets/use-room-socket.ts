@@ -11,7 +11,7 @@ import { userStore } from "@/lib/stores/user-store"
 
 
 interface UseRoomSocketOptions {
-  roomId: number
+  roomId?: number
   enabled?: boolean
 }
 
@@ -98,13 +98,19 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           _gameStore.setPlayersCount(message.payload.playersCount)
           break
         case "game.playerLeft":
+
+          if (message.payload.errorType === "gameStarted"){
+            router.replace(`/${i18n.language}/rooms/${message.payload.roomId}`)
+            break
+          }
+
           _gameStore.removePlayer(message.payload.playerId)
           _gameStore.setPlayersCount(message.payload.playersCount)
           
           if (userSupabaseId && userSupabaseId === message.payload.playerId){
             message.payload.releasedCardsIds?.map(cardId => 
              _gameStore.releaseCard(cardId))
-            _gameStore.resetGameState()
+            // _gameStore.resetGameState()
             router.replace(`/${i18n.language}/rooms/${message.payload.roomId}`)
           }
           
@@ -132,7 +138,7 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           _gameStore.setEnded(true)
           break
         case "game.countdown":
-          _gameStore.setCountdownWithEndTime(message.payload.seconds, message.payload.endTime)
+          _gameStore.setCountdownWithEndTime(message.payload.countdownEndTime)
           break
         case "game.ended":
           // _gameStore.setWinner(message.payload.winner)
@@ -147,14 +153,14 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           }
           break
         case "game.cardSelected":
-          // console.log("======================CARD SELECTED==============>>>: ", message.payload.cardId)
+          console.log("======================CARD SELECTED==============>>>: ", message.payload.cardId)
           _gameStore.selectCard(message.payload.cardId, message.payload.playerId)
           break
         case "game.cardReleased":
           _gameStore.releaseCard(message.payload.cardId)
           break
         case "room.serverGameState":
-          // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  GAME STATE:", message.payload.gameState)
+          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  GAME STATE:", message.payload.gameState)
           _gameStore.resetGameState()
           if (message.payload.success && message.payload.gameState) {
             _gameStore.setGameState(message.payload.gameState)
@@ -168,7 +174,7 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
           _gameStore.setMarkedNumbersForACard(message.payload.cardId, message.payload.numbers)
           break
         case "error":
-          console.error("WebSocket Error:", message.payload.message)
+          console.error("WebSocket Error:", message.payload)
           if (message.payload.eventType === "bingo.claim"){
             _gameStore.setClaimError(message.payload)
             _gameStore.setClaiming(false)

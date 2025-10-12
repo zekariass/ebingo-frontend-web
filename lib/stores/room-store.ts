@@ -12,6 +12,7 @@ interface RoomState {
   connected: boolean
   latencyMs: number
   serverTimeOffset: number
+  loading: boolean
 
   // Actions
   setRoom: (room: Room) => void
@@ -33,12 +34,17 @@ export const useRoomStore = create<RoomState>()(
       connected: false,
       latencyMs: 0,
       serverTimeOffset: 0,
+      loading: false,
 
       // Actions
       setRoom: (room) => set({ room }),
       fetchRoom: async (roomId) => {
-        if (get().room) return get().room
+        if (get().room && get().room?.id === roomId) return get().room
         try {
+          set((state)=>({
+            ...state,
+            loading: true
+          }) )
           const response = await fetch(`/${i18n.language}/api/rooms/${roomId}`);
           if (!response.ok) {
             throw new Error('Failed to fetch room data');
@@ -46,10 +52,18 @@ export const useRoomStore = create<RoomState>()(
           const result = await response.json();
           const {data} = result;
 
-          set({ room: data });
+          set((state)=>({
+            ...state,
+            room: data,
+            loading: false
+          }));
           return data;
         } catch (error) {
           console.error('Error fetching room:', error);
+          set((state)=>({
+            ...state,
+            loading: true
+          }) )
           return null;
         }
       },

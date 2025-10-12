@@ -203,7 +203,7 @@ export function SelectedCardsView({ cardInfoId, index }: InteractiveBingoCardPro
   // Directly select card from store
   const currentCard = useGameStore((state) => state.getCurrentCardById(cardInfoId))
 
-  console.log("==================currentCard=================================>>>>: ", currentCard)
+  // console.log("==================currentCard=================================>>>>: ", currentCard)
 
   if (!currentCard) return null
 

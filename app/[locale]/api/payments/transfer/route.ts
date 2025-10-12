@@ -1,26 +1,28 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import type { ApiResponse } from "@/lib/backend/types"
 import { createClient } from "@/lib/supabase/server"
 
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!
 
 /**
- * GET /[lang]/api/admin/transactions/by-status
- * Query Params: status, type, page, size, sortBy
+ * POST /[lang]/api/payments/transfer
+ * Body: { amount: number, email: string }
  */
-export async function GET(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     if (!BACKEND_BASE_URL) {
       throw new Error("BACKEND_BASE_URL is not defined")
     }
 
-    // Supabase auth
     const supabase = await createClient()
+
+    // Authenticate user via Supabase
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
+    // Get access token
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     if (sessionError || !session) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
@@ -28,49 +30,49 @@ export async function GET(request: NextRequest) {
 
     const token = session.access_token
 
-    // Extract and forward query params
-    const { searchParams } = new URL(request.url)
-    const status = searchParams.get("status") || ""
-    const type = searchParams.get("type") || ""
-    const page = searchParams.get("page") || "0"
-    const size = searchParams.get("size") || "10"
-    const sortBy = searchParams.get("sortBy") || "createdat"
+    // Parse incoming JSON body
+    const body = await req.json()
+    const { amount, email } = body
 
-    // Construct backend URL with encoded params
-    const backendUrl = `${BACKEND_BASE_URL}/api/v1/secured/transactions/by-status?` +
-      new URLSearchParams({
-        status,
-        type,
-        page,
-        size,
-        sortBy,
-      }).toString()
+    if (!amount || !email) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields: amount or email" },
+        { status: 400 }
+      )
+    }
 
-    // Fetch from backend
+    // Forward request to backend API
+    const backendUrl = `${BACKEND_BASE_URL}/api/v1/secured/deposit/transfers`
+
     const response = await fetch(backendUrl, {
-      method: "GET",
+      method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
-        "Accept": "application/json",
       },
+      body: JSON.stringify({
+        amount,
+        email: email, // ✅ Use the backend's expected field name
+      }),
     })
 
     if (!response.ok) {
       const errText = await response.text()
-      throw new Error(`Backend transactions fetch failed: ${response.status} ${errText}`)
+      throw new Error(`Backend transfer failed: ${response.status} ${errText}`)
     }
 
     const result = await response.json()
+    const { data } = result
 
     const responseData: ApiResponse = {
       success: true,
-      data: result.data,
+      data,
       error: null,
     }
 
     return NextResponse.json(responseData, { status: 200 })
   } catch (error) {
-    console.error("Admin transactions error:", error)
+    console.error("Transfer route error:", error)
     const response: ApiResponse = {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

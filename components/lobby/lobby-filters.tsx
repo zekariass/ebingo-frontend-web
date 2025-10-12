@@ -34,7 +34,7 @@ export function LobbyFilters() {
           </div>
         </div>
 
-        <Select
+        {/* <Select
           value={filters.fee?.toString() || "all"}
           onValueChange={(value) => setFilters({ fee: value === "all" ? undefined : Number.parseInt(value) })}
         >
@@ -49,9 +49,9 @@ export function LobbyFilters() {
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
+        </Select> */}
 
-        <Select
+        {/* <Select
           value={filters.status || "all"}
           onValueChange={(value) => setFilters({ status: value === "all" ? undefined : (value as any) })}
         >
@@ -66,7 +66,7 @@ export function LobbyFilters() {
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
+        </Select> */}
 
         {hasActiveFilters && (
           <Button variant="outline" size="sm" onClick={clearFilters} className="flex items-center gap-2 bg-transparent">

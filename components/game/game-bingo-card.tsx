@@ -248,6 +248,7 @@ export function GameBingoCard({ cardInfoId, index }: GameBingoCardProps) {
   )
 
   const userId = userStore((state) => state.user?.supabaseId)
+  const userDbId = userStore((state) => state.user?.id)
   const userName = userStore(
     (state) => `${state.user?.firstName ?? ""} ${state.user?.lastName ?? ""}`.trim()
   )
@@ -285,6 +286,7 @@ export function GameBingoCard({ cardInfoId, index }: GameBingoCardProps) {
     cardId: cardInfoId,
     pattern: room?.pattern ?? GamePattern.LINE_AND_CORNERS,
     playerId: userId ?? "",
+    userProfileId: userDbId, 
     playerName: userName,
     markedNumbers: currentCard.marked ?? []
   }

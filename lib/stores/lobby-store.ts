@@ -43,7 +43,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
 
 
   fetchRooms: async () => {
-    if (get().rooms.length) return
+    // if (get().rooms.length) return
     const urlPath = `/${i18n.language}/api/rooms`
 
     set({ loading: true, error: null })

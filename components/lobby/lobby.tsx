@@ -20,10 +20,6 @@ export function Lobby() {
 
   useEffect(() => {
     fetchRooms()
-
-    // Refresh rooms every 30 seconds
-    // const interval = setInterval(fetchRooms, 30000)
-    // return () => clearInterval(interval)
   }, [fetchRooms])
 
 
@@ -31,9 +27,9 @@ export function Lobby() {
   async function fetchPaymentData() {
     await Promise.all([
       fetchUserProfile(),
-      fetchWallet(),
+      fetchWallet(true),
       fetchPaymentMethods(),
-      fetchTransactions(currentTxnPage, currentTxnSize),
+      fetchTransactions(currentTxnPage, currentTxnSize, true),
     ])  
   }
 
@@ -42,7 +38,7 @@ export function Lobby() {
     fetchPaymentData()
   }, [])
 
-  if (loading && rooms && rooms.length === 0) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <LobbyHeader />
@@ -68,14 +64,6 @@ export function Lobby() {
         )}
 
         <div className="space-y-6">
-          {/* <div className="text-center space-y-2">
-            <h5 className="text-xl font-bold text-balance">Multiplayer Bingo Rooms</h5>
-            <p className="text-xl text-muted-foreground text-pretty">
-              Join real money 75-ball bingo games with players worldwide
-            </p>
-            {balance > 0 && <p className="text-lg font-semibold text-primary">Your Balance: ${balance.toFixed(2)}</p>}
-          </div> */}
-
           <LobbyFilters />
           <RoomGrid rooms={rooms} loading={loading} />
         </div>

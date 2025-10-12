@@ -74,7 +74,7 @@ export function GameTimerDisplay() {
           {game.status === GameStatus.COUNTDOWN && (
             <>
               <div className="text-center">
-                <CountdownTimer seconds={game.countdown} />
+                <CountdownTimer endTime={game.countdownEndTime}/>
               </div>
             </>
           )}

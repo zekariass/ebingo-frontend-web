@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Wifi, WifiOff, AlertCircle, RefreshCw } from "lucide-react"
 
 interface ConnectionStatusProps {
-  roomId: number
+  roomId?: number
 }
 
 export function ConnectionStatus({ roomId }: ConnectionStatusProps) {
@@ -18,9 +18,9 @@ export function ConnectionStatus({ roomId }: ConnectionStatusProps) {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Wifi className="h-4 w-4 text-green-500" />
         <span>Connected</span>
-        <Badge variant="outline" className="text-xs">
+        {/* <Badge variant="outline" className="text-xs">
           {latencyMs}ms
-        </Badge>
+        </Badge> */}
       </div>
     )
   }

@@ -124,49 +124,188 @@
 // }
 
 
+// "use client"
+
+// import { useState, useEffect } from "react"
+// import { Badge } from "@/components/ui/badge"
+// import { useGameStore } from "@/lib/stores/game-store"
+// import { time } from "console"
+
+// interface CountdownTimerProps {
+//   endTime: string // UTC ISO string
+//   label?: string
+// }
+
+// export function CountdownTimer({ endTime, label }: CountdownTimerProps) {
+//   const [timeLeft, setTimeLeft] = useState<number>(0)
+//   const setCountdownEndTime = useGameStore(state => state.setCountdownWithEndTime)
+
+//   useEffect(() => {
+//     if (!endTime) return
+
+//     const targetTime = new Date(endTime).getTime()
+
+//     const update = () => {
+//       const now = Date.now()
+//       const diff = Math.max(Math.ceil((targetTime - now) / 1000), 0)
+//       setTimeLeft(diff)
+
+//       if (diff === 0) clearInterval(interval)
+//     }
+
+//     update()
+//     const interval = setInterval(update, 1000)
+
+//     return () => clearInterval(interval)
+//   }, [endTime])
+
+//   // Update global countdown store
+//   useEffect(() => {
+//     if (timeLeft <= 0) {
+//       setCountdownEndTime("")
+//     } else {
+//       setCountdownEndTime((new Date(Date.now() + timeLeft*1000)).toString())
+//     }
+//   }, [timeLeft, setCountdownEndTime])
+
+//   const formatTime = (secs: number) => {
+//     const mins = Math.floor(secs / 60)
+//     const remSecs = secs % 60
+//     return `${mins.toString().padStart(2, "0")}:${remSecs.toString().padStart(2, "0")}`
+//   }
+
+//   const getVariant = () => {
+//     if (timeLeft <= 30) return "destructive"
+//     if (timeLeft <= 120) return "secondary"
+//     return "outline"
+//   }
+
+//   if (timeLeft <= 0) return null
+
+//   console.log("=>>>>>>>>>>>>>>> TIME LEFT: ", timeLeft)
+
+//   return (
+//     <div className="text-center space-y-1">
+//       {label && <div className="text-xs text-muted-foreground">{label}</div>}
+//       <Badge variant={getVariant()} className="font-mono text-sm px-3 py-1">
+//         Starts In: {formatTime(timeLeft)}
+//       </Badge>
+//     </div>
+//   )
+// }
+
+
+
+// "use client"
+
+// import { useState, useEffect } from "react"
+// import { Badge } from "@/components/ui/badge"
+// import { useGameStore } from "@/lib/stores/game-store"
+
+// interface CountdownTimerProps {
+//   endTime: string // UTC ISO string
+//   label?: string
+// }
+
+// export function CountdownTimer({ endTime, label }: CountdownTimerProps) {
+//   const [timeLeft, setTimeLeft] = useState<number>(0)
+//   const setCountdownEndTime = useGameStore(state => state.setCountdownWithEndTime)
+
+//   useEffect(() => {
+//     if (!endTime) return
+
+//     const targetTime = new Date(endTime).getTime()
+//     let interval: NodeJS.Timeout
+
+//     const update = () => {
+//       const now = Date.now()
+//       const diff = Math.max(Math.ceil((targetTime - now) / 1000), 0)
+//       setTimeLeft(diff)
+
+//       if (diff === 0 && interval) clearInterval(interval)
+//     }
+
+//     update()
+//     interval = setInterval(update, 1000)
+
+//     return () => clearInterval(interval)
+//   }, [endTime])
+
+//   useEffect(() => {
+//     if (timeLeft <= 0) {
+//       setCountdownEndTime("")
+//     } else {
+//       setCountdownEndTime(new Date(Date.now() + timeLeft * 1000).toISOString())
+//     }
+//   }, [timeLeft, setCountdownEndTime])
+
+//   const formatTime = (secs: number) => {
+//     const mins = Math.floor(secs / 60)
+//     const remSecs = secs % 60
+//     return `${mins.toString().padStart(2, "0")}:${remSecs.toString().padStart(2, "0")}`
+//   }
+
+//   const getVariant = () => {
+//     if (timeLeft <= 30) return "destructive"
+//     if (timeLeft <= 120) return "secondary"
+//     return "outline"
+//   }
+
+//   if (timeLeft <= 0) return null
+
+//   return (
+//     <div className="text-center space-y-1">
+//       {label && <div className="text-xs text-muted-foreground">{label}</div>}
+//       <Badge variant={getVariant()} className="font-mono text-sm px-3 py-1">
+//         Starts In: {formatTime(timeLeft)}
+//       </Badge>
+//     </div>
+//   )
+// }
+
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/lib/stores/game-store"
 
 interface CountdownTimerProps {
-  seconds: number
   endTime: string // UTC ISO string
   label?: string
 }
 
-export function CountdownTimer({ seconds, endTime, label }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<number>(seconds)
-  const setCountdown = useGameStore(state => state.setCountdown)
+export function CountdownTimer({ endTime, label }: CountdownTimerProps) {
+  const [timeLeft, setTimeLeft] = useState<number>(0)
+  const setCountdownEndTime = useGameStore(state => state.setCountdownWithEndTime)
 
   useEffect(() => {
     if (!endTime) return
 
     const targetTime = new Date(endTime).getTime()
+    let interval: NodeJS.Timeout
 
     const update = () => {
       const now = Date.now()
       const diff = Math.max(Math.ceil((targetTime - now) / 1000), 0)
       setTimeLeft(diff)
 
-      if (diff === 0) clearInterval(interval)
+      if (diff === 0 && interval) clearInterval(interval)
     }
 
     update()
-    const interval = setInterval(update, 1000)
+    interval = setInterval(update, 1000)
 
     return () => clearInterval(interval)
   }, [endTime])
 
-  // Update global countdown store
   useEffect(() => {
     if (timeLeft <= 0) {
-      setCountdown(0)
+      setCountdownEndTime("")
     } else {
-      setCountdown(timeLeft)
+      setCountdownEndTime(new Date(Date.now() + timeLeft * 1000).toISOString())
     }
-  }, [timeLeft, setCountdown])
+  }, [timeLeft, setCountdownEndTime])
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60)
@@ -174,10 +313,11 @@ export function CountdownTimer({ seconds, endTime, label }: CountdownTimerProps)
     return `${mins.toString().padStart(2, "0")}:${remSecs.toString().padStart(2, "0")}`
   }
 
-  const getVariant = () => {
-    if (timeLeft <= 30) return "destructive"
-    if (timeLeft <= 120) return "secondary"
-    return "outline"
+  // Map timeLeft to badge color
+  const getBadgeBg = () => {
+    if (timeLeft <= 10) return "#f87171" // red
+    if (timeLeft <= 30) return "#fbbf24" // yellow
+    return "#60a5fa" // blue for >30s
   }
 
   if (timeLeft <= 0) return null
@@ -185,9 +325,20 @@ export function CountdownTimer({ seconds, endTime, label }: CountdownTimerProps)
   return (
     <div className="text-center space-y-1">
       {label && <div className="text-xs text-muted-foreground">{label}</div>}
-      <Badge variant={getVariant()} className="font-mono text-sm px-3 py-1">
-        Starts In: {formatTime(timeLeft)}
-      </Badge>
+      <AnimatePresence mode="popLayout">
+        <motion.div
+          key={timeLeft}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, backgroundColor: getBadgeBg() }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="inline-block rounded-md"
+        >
+          <Badge variant="outline" className="font-mono text-sm px-3 py-1">
+            Starts In: {formatTime(timeLeft)}
+          </Badge>
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }

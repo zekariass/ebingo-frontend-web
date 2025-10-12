@@ -8,7 +8,7 @@ import { useRoomStore } from "@/lib/stores/room-store"
 import { useGameStore } from "@/lib/stores/game-store"
 
 interface UseWebSocketEventsOptions {
-  roomId: number
+  roomId?: number
   enabled?: boolean
 }
 

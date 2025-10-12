@@ -6,23 +6,26 @@ import { Badge } from "@/components/ui/badge"
 import { CapacityBadge } from "@/components/lobby/capacity-badge"
 import { CountdownTimer } from "@/components/common/countdown-timer"
 import { useRoomStore } from "@/lib/stores/room-store"
-import { ArrowLeft, Wifi, WifiOff } from "lucide-react"
+import { ArrowLeft, RefreshCcw, Wifi, WifiOff } from "lucide-react"
 import Link from "next/link"
 import { ConnectionStatus } from "./connection-status"
 import { useGameStore } from "@/lib/stores/game-store"
 import { useWebSocketContext } from "@/lib/contexts/websocket-context"
 import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
+import { useRouter } from "next/navigation"
 
 interface RoomHeaderProps {
-  room: Room
+  room?: Room | null 
 }
 
 export function RoomHeader({ room }: RoomHeaderProps) {
   const { connected, latencyMs } = useRoomStore()
-  const {game: {gameId, status, joinedPlayers, playersCount, countdown}} = useGameStore()
+  const {game: {gameId, status, joinedPlayers, playersCount}} = useGameStore()
 
-  const {resetPlayerStateInBackend} = useWebSocketEvents({roomId: room.id, enabled: true});
+  const {resetPlayerStateInBackend} = useWebSocketEvents({roomId: room?.id, enabled: true});
   const { resetGameState } = useGameStore();
+
+  const router = useRouter()
 
   const getStatusColor = (status: GameState["status"]) => {
     switch (status) {
@@ -73,10 +76,10 @@ export function RoomHeader({ room }: RoomHeaderProps) {
             </Button>
 
             <div className="space-y-1 min-w-0">
-              <h1 className="text-sm sm:text-lg lg:text-xl font-bold truncate">{room.name}</h1>
+              <h1 className="text-sm sm:text-lg lg:text-xl font-bold truncate">{room?.name}</h1>
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-muted-foreground">
-                <span className="truncate">ID: {room.id}</span>
-                <span>${room.entryFee}</span>
+                <span className="truncate">ID: {room?.id}</span>
+                <span>${room?.entryFee}</span>
               </div>
             </div>
           </div>
@@ -89,7 +92,10 @@ export function RoomHeader({ room }: RoomHeaderProps) {
                   {status === "READY" ? "Open" : status === "COUNTDOWN" ? "Starting soon" : "Game in progress"}
                 </span>
               </Badge>
-              <CapacityBadge current={playersCount} max={room.capacity} />
+              {/* <CapacityBadge current={playersCount} max={room?.capacity? room?.capacity: 0} /> */}
+              {/* <Badge variant="outline"> */}
+                <RefreshCcw onClick={()=>window.location.reload()} className="cursor-pointer"></RefreshCcw>
+              {/* </Badge> */}
             </div>
 
             {/* {status === "COUNTDOWN" && countdown > 0  && (
@@ -115,7 +121,7 @@ export function RoomHeader({ room }: RoomHeaderProps) {
                 </>
               )}
             </div> */}
-            <ConnectionStatus roomId={room.id} />
+            <ConnectionStatus roomId={room?.id} />
           </div>
         </div>
       </div>

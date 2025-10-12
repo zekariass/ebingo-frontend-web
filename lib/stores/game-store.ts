@@ -40,8 +40,7 @@ interface GameStore {
   updateStatus: (status: GameStatus) => void
   // claimBingo: (gameId: number, markedNumbers: number[]) => void
   handleBingoClaimResponse: (payload: WSPayload) => void
-  setCountdown: (seconds: number) => void
-  setCountdownWithEndTime: (seconds: number, endTime: string) => void
+  setCountdownWithEndTime: (endTime: string) => void
   setWinner: (winner: GameWinner) => void
   resetWinner: () => void
   setError: (error: string | null) => void
@@ -69,8 +68,8 @@ const initialGameState: GameState = {
   ended: false,
   status: Status.READY,
   stopNumberDrawing: false,
-  countdown: -1,
-  endTime: ""
+  countdownEndTime: "",
+  loading: false
 }
 
 const initialWinnerState: GameWinner ={
@@ -118,6 +117,8 @@ export const useGameStore = create<GameStore>()(
       computePlayerCardsFromPlayerCardsIds: () =>
         set((state) => {
           const { currentCardPool, userSelectedCardsIds } = state.game;
+
+          console.log("====================currentCardPool============: ", currentCardPool)
 
           return {
             game: {
@@ -244,7 +245,7 @@ export const useGameStore = create<GameStore>()(
               newUserSelectedIds.includes(card.cardId)
             )
 
-            console.log("=======================>>SELECTED CARDS============>>>: ", game.allCardIds.length)
+            // console.log("=======================>>SELECTED CARDS============>>>: ", game.allCardIds.length)
           }
 
           return {
@@ -391,22 +392,12 @@ export const useGameStore = create<GameStore>()(
         }
       },
 
-      setCountdown: (seconds) =>
+      setCountdownWithEndTime: (countdownEndTime) =>
         set((state) => ({
           game: {
             ...state.game,
-            countdown: seconds,
-            status: seconds > 0 ? Status.COUNTDOWN : state.game.status,
-          },
-        })),
-
-        setCountdownWithEndTime: (seconds, endTime) =>
-        set((state) => ({
-          game: {
-            ...state.game,
-            countdown: seconds,
-            endTime: endTime,
-            status: seconds > 0 ? Status.COUNTDOWN : state.game.status,
+            countdownEndTime: countdownEndTime,
+            status: countdownEndTime ? Status.COUNTDOWN : state.game.status,
           },
         })),
 

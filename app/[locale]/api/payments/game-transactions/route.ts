@@ -1,11 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/lib/backend/types";
 import { createClient } from "@/lib/supabase/server";
-import { PaymentMethod } from "@/lib/types";
 
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     if (!BACKEND_BASE_URL) {
       throw new Error("BACKEND_BASE_URL is not defined");
@@ -26,28 +25,43 @@ export async function GET() {
     }
 
     const token = session.access_token;
+    const userSupabaseId = user.id;
 
-    const response = await fetch(`${BACKEND_BASE_URL}/api/v1/secured/payment-methods`, {
+    // Collect query parameters from frontend request
+    const { searchParams } = new URL(req.url);
+    const page = searchParams.get("page") || "1";
+    const size = searchParams.get("size") || "10";
+    const sortBy = "createdAt";
+
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    };
+
+    // Forward query params to backend
+    const backendUrl = new URL(`${BACKEND_BASE_URL}/api/v1/secured/game/transaction`);
+    // backendUrl.searchParams.append("userSupabaseId", userSupabaseId);
+    backendUrl.searchParams.append("page", page);
+    backendUrl.searchParams.append("size", size);
+    backendUrl.searchParams.append("sortBy", sortBy);
+
+    const response = await fetch(backendUrl.toString(), {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
+      headers,
       cache: "no-store",
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch payment methods: ${response.statusText}`);
+      throw new Error(`Failed to fetch game transactions: ${response.statusText}`);
     }
 
     const result = await response.json();
 
-     // Use result.data if your API wraps it in a success object
-    const methods: PaymentMethod[] = Array.isArray(result.data) ? result.data : []
+    const {data} = result
 
     const responseData: ApiResponse = {
       success: true,
-      data: methods,
+      data,
       error: null,
     };
 

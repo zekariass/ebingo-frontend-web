@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { usePaymentStore } from "@/lib/stores/payment-store"
 import { useRoomStore } from "@/lib/stores/room-store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,23 +8,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { paymentApiClient } from "@/lib/api/payment-client"
-import { Wallet, Plus, Minus, RefreshCw } from "lucide-react"
+import { Wallet, Plus, Minus, RefreshCw, MoveRight } from "lucide-react"
 import { DepositDialog } from "./deposit-dialog"
 import { WithdrawDialog } from "./withdraw-dialog"
 import { useState } from "react"
+import { currency } from "@/lib/constant"
+import { TransferDialog } from "./transfer-dialog"
 
 export function WalletBalance() {
-  const { balance, setBalance, loading, setLoading, error, setError, fetchWallet } = usePaymentStore()
+  const { balance, transactions, loading, setLoading, error, setError, fetchWallet } = usePaymentStore()
   // const { setBalance: setRoomBalance } = useRoomStore()
   const [depositOpen, setDepositOpen] = useState(false)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
+  const [transferOpen, setTransferOpen] = useState(false)
 
-  const refreshBalance = async () => {
+  const refreshBalance = async (refresh: boolean) => {
     setLoading(true)
     setError(null)
 
     try {
-      fetchWallet()
+      await fetchWallet(refresh)
       // setRoomBalance(newBalance.available) // Sync with room store
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to refresh balance")
@@ -33,9 +36,23 @@ export function WalletBalance() {
     }
   }
 
-  // useEffect(() => {
-  //   refreshBalance()
-  // }, [])
+
+  const getPendingDepositBalance = useCallback(() => {
+      let pendingDepBal = 0.0;
+      const txns = Array.isArray(transactions) ? transactions : [];
+
+      txns?.forEach(txn => {
+        if (
+          txn.txnType === "DEPOSIT" &&
+          (txn.status === "PENDING" || txn.status === "AWAITING_APPROVAL")
+        ) {
+          pendingDepBal += txn.txnAmount;
+        }
+      });
+
+      return pendingDepBal;
+    }, [transactions]);
+
 
   // Sync balance with room store
   // useEffect(() => {
@@ -51,7 +68,7 @@ export function WalletBalance() {
               <Wallet className="h-5 w-5" />
               Wallet Balance
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={()=>refreshBalance()} disabled={loading}>
+            <Button variant="outline" size="sm" onClick={()=>refreshBalance(true)} disabled={loading}>
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
           </div>
@@ -62,21 +79,38 @@ export function WalletBalance() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Available</span>
               <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${balance.totalAvailableBalance?.toFixed(2)}
+                {currency} {balance.totalAvailableBalance?.toFixed(2)}
               </span>
             </div>
 
-            {balance.totalAvailableBalance > 0 && (
+            {balance.pendingWithdrawal > 0 && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Pending</span>
+                  <span className="text-sm text-muted-foreground">Pending Withdrawal</span>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
                       Processing
                     </Badge>
                     <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                      ${balance.pendingBalance?.toFixed(2)}
+                      {currency} {balance.pendingWithdrawal?.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {balance.pendingWithdrawal > 0 && (
+              <>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Pending Deposit</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      Processing
+                    </Badge>
+                    <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                      {currency} {getPendingDepositBalance()?.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -86,7 +120,7 @@ export function WalletBalance() {
             <Separator />
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Total Balance</span>
-              <span className="text-lg font-semibold">${balance.totalAvailableBalance?.toFixed(2)}</span>
+              <span className="text-lg font-semibold">{currency} {balance.totalAvailableBalance?.toFixed(2)}</span>
             </div>
           </div>
 
@@ -96,7 +130,7 @@ export function WalletBalance() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Button onClick={() => setDepositOpen(true)} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Deposit
@@ -105,10 +139,19 @@ export function WalletBalance() {
               variant="outline"
               onClick={() => setWithdrawOpen(true)}
               disabled={balance.totalAvailableBalance <= 0}
-              className="flex items-center gap-2 bg-transparent"
+              className="flex items-center gap-2 bg-green-500"
             >
               <Minus className="h-4 w-4" />
               Withdraw
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setTransferOpen(true)}
+              disabled={balance.totalAvailableBalance <= 0}
+              className="flex items-center gap-2 dark:bg-blue-500"
+            >
+              <MoveRight className="h-4 w-4"/>
+              Transfer
             </Button>
           </div>
         </CardContent>
@@ -116,6 +159,7 @@ export function WalletBalance() {
 
       <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} />
       <WithdrawDialog open={withdrawOpen} onOpenChange={setWithdrawOpen} />
+      <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
     </>
   )
 }

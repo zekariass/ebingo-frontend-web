@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/lib/backend/types";
 import { createClient } from "@/lib/supabase/server";
-import { PaymentMethod } from "@/lib/types";
 
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;
 
-export async function GET() {
+/**
+ * POST /[lang]/api/payments/deposit
+ * Body: { amount: number, paymentMethodId: number }
+ */
+export async function POST(req: NextRequest) {
   try {
     if (!BACKEND_BASE_URL) {
       throw new Error("BACKEND_BASE_URL is not defined");
@@ -13,7 +16,7 @@ export async function GET() {
 
     const supabase = await createClient();
 
-    // Securely authenticate user
+    // Authenticate user via Supabase
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -27,32 +30,49 @@ export async function GET() {
 
     const token = session.access_token;
 
-    const response = await fetch(`${BACKEND_BASE_URL}/api/v1/secured/payment-methods`, {
-      method: "GET",
+    // Parse incoming JSON body
+    const body = await req.json();
+    const { amount, paymentMethodId } = body;
+
+    if (!amount || !paymentMethodId) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields: amount or paymentMethodId" },
+        { status: 400 }
+      );
+    }
+
+    // Forward to backend API
+    const backendUrl = `${BACKEND_BASE_URL}/api/v1/secured/transactions/deposit/initiate-offline`;
+
+    const response = await fetch(backendUrl, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
       },
-      cache: "no-store",
+      body: JSON.stringify({
+        amount,
+        paymentMethodId,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch payment methods: ${response.statusText}`);
+      const errText = await response.text();
+      throw new Error(`Backend deposit failed: ${response.status} ${errText}`);
     }
 
     const result = await response.json();
-
-     // Use result.data if your API wraps it in a success object
-    const methods: PaymentMethod[] = Array.isArray(result.data) ? result.data : []
+    const { data } = result;
 
     const responseData: ApiResponse = {
       success: true,
-      data: methods,
+      data,
       error: null,
     };
 
-    return NextResponse.json(responseData);
+    return NextResponse.json(responseData, { status: 200 });
   } catch (error) {
+    console.error("Deposit route error:", error);
     const response: ApiResponse = {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

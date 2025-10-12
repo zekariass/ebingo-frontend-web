@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { RoomFormData } from "../schemas/admin-schemas"
-import { log } from "console"
 import i18n from "@/i18n"
+import { Transaction, TransactionStatus, TransactionType } from "../types"
 
 interface AdminStats {
   activePlayers: number
@@ -23,15 +23,6 @@ interface ActiveRoom {
   gameStatus: "waiting" | "playing" | "finished"
 }
 
-interface Transaction {
-  id: string
-  playerName: string
-  type: string
-  amount: number
-  status: "completed" | "pending" | "failed"
-  timestamp: string
-}
-
 // interface Room {
 //   id: string
 //   name: string
@@ -51,7 +42,7 @@ export type Room = {
   minPlayers: number;           // Integer -> number
   entryFee: number;             // BigDecimal -> number
   pattern: "LINE" | "LINE_AND_CORNERS" | "CORNERS" | "FULL_HOUSE"; // match RoomPattern enum
-  status: "OPEN" | "GAME_READY" | "GAME_STARTED" | "CLOSED";     // match RoomStatus enum
+  status: "OPEN" | "CLOSED";     // match RoomStatus enum
   createdBy: number;            // Long -> number
   createdAt: string;            // LocalDateTime -> ISO string
   updatedAt: string;            // LocalDateTime -> ISO string
@@ -101,7 +92,8 @@ interface AdminStore {
   // Dashboard data
   stats: AdminStats
   activeRooms: ActiveRoom[]
-  recentTransactions: Transaction[]
+  deposits: Transaction[]
+  withdrawals: Transaction[]
   systemStatus: "healthy" | "warning" | "error"
   notifications: number
 
@@ -135,6 +127,18 @@ interface AdminStore {
   loadPlayers: (search?: string) => Promise<void>
   loadGames: () => Promise<void>
   loadAnalytics: () => Promise<void>
+
+  // Transactions
+  changeTransactionStatus: (txnRef: string, status: TransactionStatus) => Promise<void>
+  updateTransaction: (txn: Transaction) => void
+  getTransactions: (
+    staus: TransactionStatus, 
+    type: TransactionType, 
+    page: number,
+    size: number,
+    sortBy: string
+  ) => Promise<void>
+
   
 }
 
@@ -152,105 +156,14 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     avgGameDuration: 18,
   },
 
-  activeRooms: [
-    {
-      id: "room-1",
-      name: "$10 Quick Play",
-      players: 45,
-      capacity: 100,
-      fee: 10,
-      status: "active",
-      gameStatus: "playing",
-    },
-    {
-      id: "room-2",
-      name: "$50 High Stakes",
-      players: 78,
-      capacity: 100,
-      fee: 50,
-      status: "active",
-      gameStatus: "waiting",
-    },
-  ],
-
-  recentTransactions: [
-    {
-      id: "tx-1",
-      playerName: "John Doe",
-      type: "Game Entry",
-      amount: -10,
-      status: "completed",
-      timestamp: "2 min ago",
-    },
-    {
-      id: "tx-2",
-      playerName: "Jane Smith",
-      type: "Prize Payout",
-      amount: 250,
-      status: "completed",
-      timestamp: "5 min ago",
-    },
-  ],
-
+  activeRooms: [],
+  withdrawals: [],
+  deposits: [],
   systemStatus: "healthy",
   notifications: 3,
   rooms: [],
-  // [
-  //   {
-  //     id: "room-1",
-  //     name: "$10 Quick Play",
-  //     fee: 10,
-  //     capacity: 100,
-  //     players: 45,
-  //     status: "active",
-  //     gameStatus: "playing",
-  //     pattern: "line",
-  //   },
-  //   {
-  //     id: "room-2",
-  //     name: "$50 High Stakes",
-  //     fee: 50,
-  //     capacity: 100,
-  //     players: 78,
-  //     status: "active",
-  //     gameStatus: "waiting",
-  //     pattern: "full-house",
-  //   },
-  // ],
-  activeGames: [
-    {
-      id: "game-1",
-      roomName: "$10 Quick Play",
-      status: "playing",
-      numbersCalledCount: 23,
-    },
-    {
-      id: "game-2",
-      roomName: "$20 Standard",
-      status: "waiting",
-      numbersCalledCount: 0,
-    },
-  ],
-  players: [
-    {
-      id: "player-1",
-      name: "John Doe",
-      email: "john@example.com",
-      status: "active",
-      balance: 150.5,
-      gamesPlayed: 45,
-      winRate: 12.5,
-    },
-    {
-      id: "player-2",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      status: "active",
-      balance: 89.25,
-      gamesPlayed: 32,
-      winRate: 18.7,
-    },
-  ],
+  activeGames: [],
+  players: [],
   analytics: {
     totalRevenue: 125450,
     revenueGrowth: 15.2,
@@ -447,7 +360,6 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       const result = await response.json()
 
       if (result.success) {
-        // console.log("===================>: "+ JSON.stringify(result))
         set({ rooms: result.data })
       } else {
         set({ error: result.error })
@@ -513,4 +425,98 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       set({ isLoading: false })
     }
   },
+
+  getTransactions: async (
+  status: TransactionStatus | undefined,
+  type: TransactionType | undefined,
+  page: number,
+  size: number,
+  sortBy: string
+) => {
+    set({ isLoading: true, error: null })
+
+    try {
+      // Build query parameters safely
+      const params = new URLSearchParams()
+
+      if (status) params.append("status", status)
+      if (type) params.append("type", type)
+      params.append("page", page.toString())
+      params.append("size", size.toString())
+      params.append("sortBy", sortBy)
+
+      // Construct URL dynamically based on current language
+      const url = `/${i18n.language}/api/admin/transactions?${params.toString()}`
+
+      const response = await fetch(url)
+      const result = await response.json()
+
+      if (result.success) {
+        if (type === "DEPOSIT") {
+          set({ deposits: result.data })
+        } else {
+          set({ withdrawals: result.data })
+        }
+      } else {
+        set({ error: result.message || "Failed to fetch transactions" })
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error)
+      set({ error: "Failed to load transactions" })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  changeTransactionStatus: async (txnRef: string, status: TransactionStatus) => {
+    set({ isLoading: true, error: null })
+
+    try {
+      const url = `/${i18n.language}/api/admin/transactions/${encodeURIComponent(txnRef)}/status?status=${status}`
+
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        }
+        // body: JSON.stringify({ status }), 
+      })
+
+      let result: any = null
+      try {
+        result = await response.json()
+      } catch {
+        throw new Error("Invalid JSON response from server")
+      }
+
+      // Success
+      if (response.ok && result?.success && result?.data) {
+        get().updateTransaction(result.data)
+      } else {
+        const errorMsg =
+          result?.error ||
+          result?.message ||
+          `Failed to update transaction status (${response.status})`
+        set({ error: errorMsg })
+      }
+    } catch (error) {
+      console.error("Error updating transaction status:", error)
+      set({ error: error instanceof Error ? error.message : "Failed to update transaction status" })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+updateTransaction: (txn: Transaction) => {
+  if (txn.txnType === "DEPOSIT") {
+    const existing = get().deposits.filter(t => t.id !== txn.id)
+    set({ deposits: [...existing, txn] })
+  } else if (txn.txnType === "WITHDRAWAL") {
+    const existing = get().withdrawals.filter(t => t.id !== txn.id)
+    set({ withdrawals: [...existing, txn] }) 
+  }
+}
+
+
 }))
