@@ -34,7 +34,7 @@ import { useTranslation } from "react-i18next"
  * \`\`\`
  */
 export function AdminDashboard() {
-  const { stats, activeRooms, recentTransactions, isLoading, error, loadDashboardData, refreshData } = useAdminStore()
+  const { stats, activeRooms, isLoading, error, loadDashboardData, refreshData } = useAdminStore()
 
   const {t, i18n} = useTranslation('admin')
 
@@ -45,7 +45,7 @@ export function AdminDashboard() {
         const response = await fetch("/api/admin/transactions?limit=5")
         const result = await response.json()
         if (result.success) {
-          useAdminStore.setState({ recentTransactions: result.data })
+          // useAdminStore.setState({ recentTransactions: result.data })
         }
       } catch (error) {
         console.error("Failed to load transactions:", error)
@@ -155,7 +155,7 @@ export function AdminDashboard() {
             <CardDescription>Latest payment activity</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               {recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -174,7 +174,7 @@ export function AdminDashboard() {
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>
