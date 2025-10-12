@@ -220,6 +220,7 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
 
         const WS_API_BASE = process.env.NEXT_PUBLIC_WS_URL!
         const wsUrl = `${WS_API_BASE}/game?roomId=${roomId}&token=${encodeURIComponent(token)}`
+        // const wsUrl = `ws://localhost:8080/ws/game?roomId=${roomId}&token=${encodeURIComponent(token)}`
         // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Connecting to WebSocket URL:", wsUrl)
         const ws = new WebSocket(wsUrl)
         wsRef.current = ws
