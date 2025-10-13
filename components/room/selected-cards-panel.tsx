@@ -18,9 +18,9 @@ export function SelectedCardsPanel() {
 
   return (
     <Card className="p-0">
-      <CardHeader>
+      {/* <CardHeader>
         <CardTitle className="text-base sm:text-lg pt-2">Your Selected Cards ({userSelectedCards?.length}/2)</CardTitle>
-      </CardHeader>
+      </CardHeader> */}
       <CardContent className="p-2 sm:p-4">
         <div
           className={`grid gap-1 sm:gap-2 md:gap-4 w-full ${userSelectedCards?.length === 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"

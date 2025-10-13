@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 import { usePaymentStore } from "@/lib/stores/payment-store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -52,10 +52,9 @@ export function WalletBalance() {
     }, [transactions]);
 
 
-  // Sync balance with room store
-  // useEffect(() => {
-  //   setRoomBalance(balance.available)
-  // }, [balance.available, setRoomBalance])
+  useEffect(() => {
+     refreshBalance(true)
+  },[])
 
   return (
     <>

@@ -10,7 +10,6 @@ import { I18nProvider } from '@/providers/I18nProvider'
 
 interface LayoutProps {
   children: ReactNode
-  // params: { locale: string }
 }
 
 export default function RootLayout({ children }: LayoutProps) {

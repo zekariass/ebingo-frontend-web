@@ -68,9 +68,9 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
       <CardHeader className="">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
           <div className="flex flex-row sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-            <Badge variant="destructive" className="w-fit">
+            {/* <Badge variant="destructive" className="w-fit">
               {userSelectedCardsIds.length}/{maxCards} selected
-            </Badge>
+            </Badge> */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full" />
@@ -87,30 +87,6 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
             </div>
           </div>
         </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center gap-2 justify-end mt-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-            </Button>
-            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-            </Button>
-          </div>
-        )}
       </CardHeader>
 
       <CardContent className="p-1 sm:p-1">
@@ -160,7 +136,7 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
             {!paginatedCards.length && (
               <RefreshCwIcon
                 onClick={() => window.location.reload()}
-                className="cursor-pointer flex items-center justify-center w-full" // ✅ make SVG block
+                className="cursor-pointer flex items-center justify-center w-full"
                 size={64}
               />
             )}
@@ -169,8 +145,32 @@ export function CardSelectionGrid({ roomId, capacity, disabled }: CardSelectionG
         {userSelectedCardsIds.length >= maxCards && (
           <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
             <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300">
-              You have selected the maximum of {maxCards} cards. Deselect a card to choose a different one.
+              Maximum of {maxCards} cards selected. Deselect a card to choose a different one.
             </p>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center gap-2 justify-end mt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
+            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
           </div>
         )}
       </CardContent>

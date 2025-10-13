@@ -13,6 +13,7 @@ import { useGameStore } from "@/lib/stores/game-store"
 import { useWebSocketContext } from "@/lib/contexts/websocket-context"
 import { useWebSocketEvents } from "@/lib/hooks/websockets/use-websocket-events"
 import { useRouter } from "next/navigation"
+import { currency } from "@/lib/constant"
 
 interface RoomHeaderProps {
   room?: Room | null 
@@ -76,52 +77,21 @@ export function RoomHeader({ room }: RoomHeaderProps) {
             </Button>
 
             <div className="space-y-1 min-w-0">
-              <h1 className="text-sm sm:text-lg lg:text-xl font-bold truncate">{room?.name}</h1>
+              {/* <h1 className="text-sm sm:text-lg lg:text-xl font-bold truncate">{room?.name}</h1> */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-muted-foreground">
                 <span className="truncate">ID: {room?.id}</span>
-                <span>${room?.entryFee}</span>
+                <span>{currency} {room?.entryFee}</span>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-2 text-right shrink-0">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className={`${getStatusColor(status)} text-white border-0 text-xs`}>
-                <span className="hidden sm:inline">{getStatusText(status)}</span>
-                <span className="sm:hidden">
-                  {status === "READY" ? "Open" : status === "COUNTDOWN" ? "Starting soon" : "Game in progress"}
-                </span>
-              </Badge>
-              {/* <CapacityBadge current={playersCount} max={room?.capacity? room?.capacity: 0} /> */}
-              {/* <Badge variant="outline"> */}
-                <RefreshCcw onClick={()=>window.location.reload()} className="cursor-pointer"></RefreshCcw>
-              {/* </Badge> */}
             </div>
-
-            {/* {status === "COUNTDOWN" && countdown > 0  && (
-              <CountdownTimer
-                targetTime={countdown}
-                label={<span className="hidden sm:inline">Next game starts in</span>}
-              />
-            )} */}
-
-            {/* <div className="flex items-center gap-2 text-xs">
-              {connected ? (
-                <>
-                  <Wifi className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                  <span className="text-muted-foreground">{latencyMs}ms</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-                  <span className="text-red-500">
-                    <span className="hidden sm:inline">Disconnected</span>
-                    <span className="sm:hidden">Offline</span>
-                  </span>
-                </>
-              )}
-            </div> */}
-            <ConnectionStatus roomId={room?.id} />
+            <span className="flex flex-row">
+              <ConnectionStatus roomId={room?.id} />
+              <RefreshCcw onClick={()=>window.location.reload()} className="ms-3 cursor-pointer"></RefreshCcw>
+            </span>
           </div>
         </div>
       </div>

@@ -16,6 +16,8 @@ import { DialogTitle } from "@radix-ui/react-dialog"
 import { userStore } from "@/lib/stores/user-store"
 import { UserRole } from "@/lib/types"
 import { GameTransactionHistory } from "../payment/game-transaction-history"
+import { useRouter } from "next/navigation"
+import i18n from "@/i18n"
 
 export function LobbyHeader() {
   const [walletOpen, setWalletOpen] = useState(false)
@@ -24,6 +26,8 @@ export function LobbyHeader() {
 
   const {user, loading} = useSession();
   const {user: dbUser} = userStore();
+
+  const router =  useRouter()
 
 
   // const {transactions, fetchTransactions} = usePaymentStore()
@@ -88,7 +92,6 @@ export function LobbyHeader() {
                   <TransactionHistory />
                 </DialogContent>
               </Dialog>
-
 
               <Dialog open={gameHistoryOpen} onOpenChange={setGameHistoryOpen}>
                 <DialogTrigger asChild>

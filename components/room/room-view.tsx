@@ -88,9 +88,9 @@ export function RoomView({ roomId }: RoomViewProps) {
           </div>
 
           {/* Right Column - Game Info */}
-          <div className="space-y-3 sm:space-y-6">
+          {/* <div className="space-y-3 sm:space-y-6">
             <NumberCallingArea />
-          </div>
+          </div> */}
         </div>
       </main>
     </div>

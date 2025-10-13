@@ -229,7 +229,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
         <div key={fee} className="space-y-4">
           <div className="flex items-center justify-between">
             {/* <h2 className="text-xl font-semibold text-foreground">Entry Fee: {fee}</h2> */}
-            <Badge variant="outline">{rooms.length} rooms</Badge>
+            {/* <Badge variant="outline">{rooms.length} rooms</Badge> */}
           </div>
           <ResponsiveRoomGrid rooms={rooms} />
         </div>
@@ -253,51 +253,57 @@ function ResponsiveRoomGrid({ rooms }: { rooms: Room[] }) {
     }
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {rooms.map((room) => (
-        <motion.div
-          key={room.id}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 3 }}
-          onClick={() => handleCardClick(room)}
-          className="cursor-pointer"
-        >
-          <Card className="hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-slate-950">
-            <CardHeader className="px-2 border-b border-border">
-              <CardTitle className="text-base font-semibold truncate text-center">
-                <Badge variant={"outline"}>{room.name}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-2 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Players</span>
-                <span>
-                  {room.capacity}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <Badge
-                  variant={
-                    room.status === RoomStatus.OPEN
-                      ? "default"
-                      : room.status === RoomStatus.CLOSED
-                      ? "destructive"
-                      : "secondary"
-                  }
-                  className={room.status === RoomStatus.OPEN?`bg-green-800 text-white`:"bg-red-800 text-white"}
-                >
-                  {room.status}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Fee</span>
-                <span className="font-medium">{currency} {room.entryFee}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
-    </div>
+    {rooms.map((room) => (
+      <motion.button
+        key={room.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        onClick={() => handleCardClick(room)}
+        className="cursor-pointer rounded-2xl overflow-hidden bg-slate-950 hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <div className="px-4 py-2 border-b border-border text-center flex items-center justify-between">
+          <div className="text-lg font-semibold">
+            {room.name}
+          </div>
+
+          <div className="">
+            {/* <span className="text-muted-foreground">Status</span> */}
+            <Badge
+              variant={
+                room.status === RoomStatus.OPEN
+                  ? "default"
+                  : room.status === RoomStatus.CLOSED
+                  ? "destructive"
+                  : "secondary"
+              }
+              className={
+                room.status === RoomStatus.OPEN
+                  ? "bg-green-700 text-white"
+                  : "bg-red-700 text-white"
+              }
+            >
+              {room.status}
+            </Badge>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-bold text-lg">Capacity</span>
+            <span className="font-medium font-bold text-lg">{room.capacity} Players</span>
+          </div>
+
+          
+
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-bold text-lg">Fee</span>
+            <span className="font-medium font-bold text-lg">{currency} {room.entryFee}</span>
+          </div>
+        </div>
+      </motion.button>
+    ))}
+</div>
+
   )
 }

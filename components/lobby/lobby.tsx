@@ -55,7 +55,7 @@ export function Lobby() {
     <div className="min-h-screen bg-background">
       <LobbyHeader />
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
+      <main className="container mx-auto px-4 py-4 space-y-8">
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -64,7 +64,7 @@ export function Lobby() {
         )}
 
         <div className="space-y-6">
-          <LobbyFilters />
+          {rooms?.length >=8 && <LobbyFilters />}
           <RoomGrid rooms={rooms} loading={loading} />
         </div>
       </main>
