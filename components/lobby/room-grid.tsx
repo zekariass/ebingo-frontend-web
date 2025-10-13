@@ -157,6 +157,7 @@ import { ChevronDown } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion"
 import { useRouter } from "next/navigation"
 import i18n from "@/i18n"
+import { currency } from "@/lib/constant"
 
 interface RoomGridProps {
   rooms: Room[]
@@ -261,9 +262,11 @@ function ResponsiveRoomGrid({ rooms }: { rooms: Room[] }) {
           onClick={() => handleCardClick(room)}
           className="cursor-pointer"
         >
-          <Card className="hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-slate-800">
+          <Card className="hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-slate-950">
             <CardHeader className="px-2 border-b border-border">
-              <CardTitle className="text-base font-semibold truncate">{room.name}</CardTitle>
+              <CardTitle className="text-base font-semibold truncate text-center">
+                <Badge variant={"outline"}>{room.name}</Badge>
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-2 space-y-2 text-sm">
               <div className="flex justify-between">
@@ -282,14 +285,14 @@ function ResponsiveRoomGrid({ rooms }: { rooms: Room[] }) {
                       ? "destructive"
                       : "secondary"
                   }
-                  className={room.status === RoomStatus.OPEN?`bg-green-800`:"bg-red-800"}
+                  className={room.status === RoomStatus.OPEN?`bg-green-800 text-white`:"bg-red-800 text-white"}
                 >
                   {room.status}
                 </Badge>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Fee</span>
-                <span className="font-medium">{room.entryFee}</span>
+                <span className="font-medium">{currency} {room.entryFee}</span>
               </div>
             </CardContent>
           </Card>

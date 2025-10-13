@@ -5,7 +5,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { WalletBalance } from "@/components/payment/wallet-balance"
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog"
 import { TransactionHistory } from "@/components/payment/transaction-history"
-import { History, Settings, Wallet } from "lucide-react"
+import { CreditCard, FileTextIcon, History, ListOrdered, ListOrderedIcon, ReceiptIcon, Settings, Wallet } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useSession } from "@/hooks/use-session"
@@ -15,7 +15,6 @@ import SignupButton from "../auth/signup-button"
 import { DialogTitle } from "@radix-ui/react-dialog"
 import { userStore } from "@/lib/stores/user-store"
 import { UserRole } from "@/lib/types"
-import { usePaymentStore } from "@/lib/stores/payment-store"
 import { GameTransactionHistory } from "../payment/game-transaction-history"
 
 export function LobbyHeader() {
@@ -42,7 +41,7 @@ export function LobbyHeader() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-xl sm:text-2xl font-bold text-primary">
-                Bingo Pro
+                Bingo Fam
               </Link>
             </div>
 
@@ -58,7 +57,7 @@ export function LobbyHeader() {
               
               <Dialog open={walletOpen} onOpenChange={setWalletOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="secondary" size="sm">
                     <Wallet className="h-4 w-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Wallet</span>
                   </Button>
@@ -75,8 +74,8 @@ export function LobbyHeader() {
 
               <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <History className="h-4 w-4 mr-1 sm:mr-2" />
+                  <Button variant="secondary" size="sm">
+                    <ReceiptIcon className="h-4 w-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Transactions</span>
                   </Button>
                 </DialogTrigger>
@@ -93,8 +92,8 @@ export function LobbyHeader() {
 
               <Dialog open={gameHistoryOpen} onOpenChange={setGameHistoryOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <History className="h-4 w-4 mr-1 sm:mr-2" />
+                  <Button variant="secondary" size="sm">
+                    <CreditCard className="h-4 w-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Game Payments</span>
                   </Button>
                 </DialogTrigger>
@@ -108,14 +107,14 @@ export function LobbyHeader() {
                 </DialogContent>
               </Dialog>
 
-              {dbUser?.role === UserRole.ADMIN && <Button variant="outline" size="sm" asChild>
+              {dbUser?.role === UserRole.ADMIN && 
+              <Button variant="secondary" size="sm" asChild>
                 <Link href="/admin/rooms">
                   <Settings className="h-4 w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Admin</span>
                 </Link>
               </Button>}
               <HeaderUserDropdown />
-              <Link href="/test">Test</Link>
               <ModeToggle />
               </>}
             </div>

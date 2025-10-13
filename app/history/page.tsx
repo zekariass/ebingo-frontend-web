@@ -1,5 +1,5 @@
-import { GameHistory } from "@/components/history/game-history"
+// import { GameHistory } from "@/components/history/game-history"
 
-export default function HistoryPage() {
-  return <GameHistory />
-}
+// export default function HistoryPage() {
+//   return <GameHistory />
+// }

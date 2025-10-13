@@ -15,7 +15,7 @@ export function ModeToggle({className}: ModeToggleProps) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
-  const iconSize = className ? className : "h-[1.2rem] w-[1.2rem]"
+  const iconSize = className ? className : "h-[1.5rem] w-[1.5rem]"
 
   useEffect(() => {
     setMounted(true)

@@ -25,11 +25,11 @@ export default function HeaderUserDropdown() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
-                    variant="ghost"
-                    className="relative h-10 w-10 rounded-full hover:bg-gray-100"
+                    variant="destructive"
+                    className={`relative h-10 w-10 rounded-full hover:bg-gray-100`}
                 >
                     <Avatar className="h-10 w-10">
-                        <AvatarImage src="/placeholder-user.png" alt="User" />
+                        {/* <AvatarImage src="/placeholder-user.png" alt="User" /> */}
                         <AvatarFallback className="bg-gray-200 text-gray-700 font-semibold">
                             {user?.firstName?.at(0) || "U"}
                         </AvatarFallback>

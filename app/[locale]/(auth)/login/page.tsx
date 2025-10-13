@@ -3,6 +3,8 @@
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/hooks/use-session';
 import i18n from '@/i18n';
+import { ArrowLeft, ArrowLeftFromLine, ArrowLeftIcon } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -47,9 +49,15 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center px-4">
             <div className="max-w-md w-full border shadow-lg shadow-md rounded-xl p-8 space-y-6">
-                <h1 className="text-2xl font-bold text-center text-white">
-                    Bingo
-                </h1>
+                <div className="relative flex items-center justify-center">
+                    <Link href="/" className="absolute left-3 flex items-center gap-1 text-white">
+                        <ArrowLeftIcon className="text-blue-500"/>
+                        <span className="text-blue-500">Home</span>
+                    </Link>
+
+                    <h1 className="text-2xl font-bold text-white">Bingo</h1>
+                </div>
+
                 <p className="text-sm text-white text-center">
                     Enter your credentials to access the games
                 </p>
@@ -101,6 +109,7 @@ export default function LoginPage() {
                         Sign up
                     </a>
                 </p>
+                
             </div>
         </div>
     );

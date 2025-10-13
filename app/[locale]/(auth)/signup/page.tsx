@@ -6,10 +6,11 @@ import { signupSchema, SignupFormData } from "@/lib/validation/signup-validation
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { CalendarIcon } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import Link from "next/link";
 
 const supabase = supabaseBrowser();
 
@@ -27,9 +28,9 @@ export default function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const [emailError, setEmailError] = useState("");
-  const [emailAvailable, setEmailAvailable] = useState(true);
-  const [nicknameAvailable, setNicknameAvailable] = useState(true);
+  const [emailError] = useState("");
+  const [emailAvailable] = useState(true);
+  const [nicknameAvailable] = useState(true);
 
   const { register, handleSubmit, watch, control, formState: { errors } } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -80,7 +81,14 @@ export default function SignupForm() {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow-lg">
-      <h1 className="text-3xl font-bold mb-6 text-center">Sign Up</h1>
+      <div className="relative flex items-center justify-center">
+                    <Link href="/" className="absolute left-3 flex items-center gap-1 text-white ">
+                        <ArrowLeftIcon className="text-blue-500"/>
+                        <span className="text-blue-500">Home</span>
+                    </Link>
+
+                    <h1 className="text-2xl font-bold text-white">Signup</h1>
+                </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {(["firstName", "lastName", "nickName", "dateOfBirth", "phone", "email", "password"] as (keyof SignupFormData)[])
           .map((field) => (
@@ -148,13 +156,13 @@ export default function SignupForm() {
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <button
+        <Button
           type="submit"
           disabled={loading || !emailAvailable || !nicknameAvailable}
-          className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+          className="w-full text-white p-3 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
           {loading ? "Signing up..." : "Sign Up"}
-        </button>
+        </Button>
 
         <p className="text-sm text-white text-center">
           Have an account?{" "}

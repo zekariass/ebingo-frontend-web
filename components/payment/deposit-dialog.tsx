@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CreditCard, DollarSign } from "lucide-react"
-import { PaymentMethod } from "@/lib/types"
 
 const depositSchema = z.object({
   amount: z.number().min(10, "Minimum deposit is $10").max(1000, "Maximum deposit is $1000"),

@@ -129,27 +129,29 @@ export function WalletBalance() {
           )}
 
           <div className="grid grid-cols-3 gap-3">
-            <Button onClick={() => setDepositOpen(true)} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+            <Button onClick={() => setDepositOpen(true)} className="flex items-center gap-2 dark:bg-green-500">
+              {/* <Plus className="h-4 w-4" /> */}
               Deposit
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setWithdrawOpen(true)}
-              disabled={balance.totalAvailableBalance <= 0}
-              className="flex items-center gap-2 bg-green-500"
-            >
-              <Minus className="h-4 w-4" />
-              Withdraw
-            </Button>
+            
             <Button
               variant="outline"
               onClick={() => setTransferOpen(true)}
               disabled={balance.totalAvailableBalance <= 0}
-              className="flex items-center gap-2 dark:bg-blue-500"
+              className="flex items-center gap-2 dark:bg-yellow-500"
             >
-              <MoveRight className="h-4 w-4"/>
+              {/* <MoveRight className="h-4 w-4"/> */}
               Transfer
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setWithdrawOpen(true)}
+              disabled={balance.totalAvailableBalance <= 0}
+              className="flex items-center gap-2 dark:bg-red-500"
+            >
+              {/* <Minus className="h-4 w-4" /> */}
+              Withdraw
             </Button>
           </div>
         </CardContent>
