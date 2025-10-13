@@ -23,7 +23,7 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
 
   const enterRoom = useCallback(() => {
     if (!socket || !roomId || !user?.id) return
-    console.log("=========================>>>>>: CAPACITY: ", capacity)
+    // console.log("=========================>>>>>: CAPACITY: ", capacity)
     socket.send({
       type: "room.getGameStateRequest",
       payload: { roomId, playerId: user?.id, capacity },
@@ -32,7 +32,7 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
   }, [roomId, user?.id])
 
 
-  // ✅ Reset player state in backend
+  // Reset player state in backend
   const resetPlayerStateInBackend = useCallback(
     (gameId: number) => {
       if (!socket) return
@@ -44,7 +44,7 @@ export function useWebSocketEvents({ roomId, enabled = true }: UseWebSocketEvent
     [socket, user?.id]
   )
 
-  // ✅ Join Game
+  // Join Game
   const joinGame = useCallback(
     (gameId: number, fee: number) => {
       if (!socket) return

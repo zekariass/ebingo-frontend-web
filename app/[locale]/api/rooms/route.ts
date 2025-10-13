@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 // import { gameState } from "@/lib/backend/game-state"
-import type { ApiResponse } from "@/lib/backend/types"
-import { createClient } from "@/lib/supabase/server";
 
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL!;
 

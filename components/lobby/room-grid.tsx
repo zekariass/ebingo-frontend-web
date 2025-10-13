@@ -228,7 +228,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
       {roomsByFee.map(({ fee, rooms }) => (
         <div key={fee} className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">Entry Fee: {fee}</h2>
+            {/* <h2 className="text-xl font-semibold text-foreground">Entry Fee: {fee}</h2> */}
             <Badge variant="outline">{rooms.length} rooms</Badge>
           </div>
           <ResponsiveRoomGrid rooms={rooms} />

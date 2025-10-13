@@ -270,7 +270,7 @@ export function useRoomSocket({ roomId, enabled = true }: UseRoomSocketOptions) 
             maxAttemptsReachedRef.current = true
             setSocketState((prev) => ({
               ...prev,
-              error: "Unable to connect to game server",
+              error: "Unable to connect",
             }))
             console.log("Max reconnection attempts reached - stopping reconnection")
           }

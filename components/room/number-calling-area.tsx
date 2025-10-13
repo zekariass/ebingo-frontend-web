@@ -62,7 +62,7 @@ export function NumberCallingArea() {
   return (
     <div className="space-y-4">
       {/* Game Timer */}
-      <GameTimerDisplay />
+      {/* <GameTimerDisplay /> */}
 
       {/* Current Pattern */}
       <PatternDisplay pattern={room?.pattern} />
@@ -73,7 +73,7 @@ export function NumberCallingArea() {
       {/* Pattern Progress */}
       {/* <PatternProgress /> */}
 
-      <Dialog>
+      {/* <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline" className="w-full bg-transparent">
             <Target className="h-4 w-4 mr-2" />
@@ -86,7 +86,7 @@ export function NumberCallingArea() {
           </DialogHeader>
           <GameSettings />
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }
