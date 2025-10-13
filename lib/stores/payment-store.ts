@@ -174,7 +174,7 @@ export const usePaymentStore = create<PaymentState>()(
       // Computed getters
       getDefaultPaymentMethod: () => {
         const { paymentMethods } = get()
-        return paymentMethods?.find((m) => m.isDefault) || null// || paymentMethods[0] || null
+        return paymentMethods?.find((m) => m.isDefault) || null
       },
 
 

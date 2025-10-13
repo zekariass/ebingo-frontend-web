@@ -9,17 +9,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Home,
+    Key,
     LogOut,
 } from "lucide-react"
 import { Button } from "../ui/button";
 import { logout } from "../auth/logout";
 import { userStore } from "@/lib/stores/user-store";
+import { useRouter } from "next/navigation";
+import i18n from "@/i18n";
 
 
 export default function HeaderUserDropdown() {
-    // const { user, loading } = useSession();
     const {user} = userStore();
-    // console.log("============USER DATA: firstname==================>>>User Profile Data:", user?.firstName);
+    const router = useRouter()
 
     return (
         <DropdownMenu>
@@ -51,32 +53,17 @@ export default function HeaderUserDropdown() {
                     </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                     <Home className="mr-2 h-4 w-4" />
                     <span>Home</span>
-                </DropdownMenuItem>
-                {/* <DropdownMenuItem>
-                    <ModeToggle className="mr-2 h-4 w-4" />
-                    <span>Theme</span>
                 </DropdownMenuItem> */}
-                {/* <DropdownMenuItem>
-                    <FileText className="mr-2 h-4 w-4" />
-                    <span>My Jobs</span>
+                {/* <DropdownMenuSeparator /> */}
+                <DropdownMenuItem onClick={() => router.push(`/${i18n.language}/change-password`)} className="cursor-pointer">
+                    <Key className="mr-2 h-4 w-4" />
+                    <span>Change Password</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    <span>Browse Providers</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Star className="mr-2 h-4 w-4" />
-                    <span>Reviews</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={logout} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>
                 </DropdownMenuItem>

@@ -24,19 +24,10 @@ export function LobbyHeader() {
   const [historyOpen, setHistoryOpen] = useState(false)
   const [gameHistoryOpen, setGameHistoryOpen] = useState(false)
 
-  const {user, loading} = useSession();
-  const {user: dbUser} = userStore();
+  // const {user, loading} = useSession();
+  const user = userStore((state) => state.user);
 
   const router =  useRouter()
-
-
-  // const {transactions, fetchTransactions} = usePaymentStore()
-
-  //  useEffect(() => {
-  //   // if (transactions.length === 0) {
-  //     fetchTransactions(1, 10)
-  //   // }
-  // }, [fetchTransactions])
 
   return (
     <>
@@ -110,7 +101,7 @@ export function LobbyHeader() {
                 </DialogContent>
               </Dialog>
 
-              {dbUser?.role === UserRole.ADMIN && 
+              {user?.role === UserRole.ADMIN && 
               <Button variant="secondary" size="sm" asChild>
                 <Link href="/admin/rooms">
                   <Settings className="h-4 w-4 mr-1 sm:mr-2" />

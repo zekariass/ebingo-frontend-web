@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { usePaymentStore } from "@/lib/stores/payment-store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -14,25 +14,28 @@ import { currency } from "@/lib/constant"
 import { TransferDialog } from "./transfer-dialog"
 
 export function WalletBalance() {
-  const { balance, transactions, loading, setLoading, error, setError, fetchWallet } = usePaymentStore()
+  const { balance, transactions, loading, setLoading, error, setError, fetchWallet, getPendingTransactions } = usePaymentStore()
   // const { setBalance: setRoomBalance } = useRoomStore()
   const [depositOpen, setDepositOpen] = useState(false)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [transferOpen, setTransferOpen] = useState(false)
 
-  const refreshBalance = async (refresh: boolean) => {
-    setLoading(true)
-    setError(null)
+  const refreshBalance = useCallback(async (refresh: boolean)=>{
+      setLoading(true)
+      setError(null)
 
-    try {
-      await fetchWallet(refresh)
-      // setRoomBalance(newBalance.available) // Sync with room store
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to refresh balance")
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        await fetchWallet(refresh)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to refresh balance")
+      } finally {
+        setLoading(false)
+      }
+    
+  }, [fetchWallet, setLoading, setError])
+
+
+  const computePendingTxns = getPendingTransactions()
 
 
   const getPendingDepositBalance = useCallback(() => {
@@ -54,7 +57,7 @@ export function WalletBalance() {
 
   useEffect(() => {
      refreshBalance(true)
-  },[])
+  }, [])
 
   return (
     <>
@@ -97,7 +100,7 @@ export function WalletBalance() {
               </>
             )}
 
-            {balance.pendingWithdrawal > 0 && (
+            {computePendingTxns.length > 0 && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">

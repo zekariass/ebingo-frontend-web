@@ -167,7 +167,6 @@ import { useEffect } from "react"
 export function TransactionHistory() {
   const {
     transactions,
-    setTransactions,
     fetchTransactions,
     loading,
     setLoading,
@@ -191,9 +190,9 @@ export function TransactionHistory() {
   }
 
   useEffect(() => {
-    if (!transactions || txns.length === 0) {
-      refreshTransactions()
-    }
+    // if (!transactions || txns.length === 0) {
+      refreshTransactions(true)
+    // }
   }, [])
 
   const getTransactionIcon = (type: TransactionType) => {
