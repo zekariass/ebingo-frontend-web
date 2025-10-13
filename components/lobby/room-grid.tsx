@@ -260,7 +260,7 @@ function ResponsiveRoomGrid({ rooms }: { rooms: Room[] }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         onClick={() => handleCardClick(room)}
-        className="cursor-pointer rounded-2xl overflow-hidden bg-slate-950 hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="cursor-pointer rounded-2xl overflow-hidden bg-slate-950 hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border-1 border-white"
       >
         <div className="px-4 py-2 border-b border-border text-center flex items-center justify-between">
           <div className="text-lg font-semibold">
@@ -290,15 +290,15 @@ function ResponsiveRoomGrid({ rooms }: { rooms: Room[] }) {
 
         <div className="p-4 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground font-bold text-lg">Capacity</span>
-            <span className="font-medium font-bold text-lg">{room.capacity} Players</span>
+            <span className="dark:text-white font-bold text-lg">Capacity</span>
+            <span className="dark:text-white font-bold text-lg">{room.capacity} Players</span>
           </div>
 
           
 
           <div className="flex justify-between">
-            <span className="text-muted-foreground font-bold text-lg">Fee</span>
-            <span className="font-medium font-bold text-lg">{currency} {room.entryFee}</span>
+            <span className="dark:text-white font-bold text-lg">Fee</span>
+            <span className="dark:text-white font-bold text-lg">{currency} {room.entryFee}</span>
           </div>
         </div>
       </motion.button>
