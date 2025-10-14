@@ -198,7 +198,16 @@ async function showStartMenu(ctx: any) {
   await ctx.reply('📋 Choose a command:', Markup.inlineKeyboard(inlineButtons));
 }
 
-// ---------------- Bot Handlers ----------------
+
+bot.start(async (ctx) => {
+  const userId = ctx.from?.id;
+  if (!userLanguageMap.has(userId)) {
+    userLanguageMap.set(userId, 'en'); // default language
+  }
+  await showStartMenu(ctx);
+});
+
+
 
 // ------------------ Inline command handlers ------------------
 bot.action('cmd_webview', async (ctx) => {
