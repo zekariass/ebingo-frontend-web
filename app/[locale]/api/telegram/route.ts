@@ -190,7 +190,6 @@ async function showStartMenu(ctx: any) {
 
   await ctx.reply(`${greeting}\n\n${t(ctx, 'greeting')}`, getFooterKeyboard(lang));
 
-
 //   const inlineButtons = [
 //     [
 //       Markup.button.callback(langTrans.btnWebview, 'cmd_webview'),
@@ -361,6 +360,23 @@ bot.command('language', async (ctx) => {
   );
   await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
 });
+
+
+
+bot.hears('🎲 Game Rooms', async (ctx) => await showRooms(ctx));
+bot.hears('🎮 Start Game', async (ctx) => await ctx.reply(t(ctx, 'startGame')));
+bot.hears('💰 Deposit Fund', async (ctx) => await ctx.reply(t(ctx, 'deposit')));
+bot.hears('🔁 Transfer Fund', async (ctx) => await ctx.reply(t(ctx, 'transfer')));
+bot.hears('💸 Withdraw Money', async (ctx) => await ctx.reply(t(ctx, 'withdraw')));
+bot.hears('📖 Instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions')));
+bot.hears('🧑‍💻 Support', async (ctx) => await ctx.reply(t(ctx, 'support')));
+bot.hears(/^🌐 Language/, async (ctx) => {
+  const inlineButtons = availableLanguages.map(lang =>
+    Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
+  );
+  await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
+});
+
 
 // ------------------ Language Action Handler ------------------
 bot.action(/set_language_(.+)/, async (ctx) => {
