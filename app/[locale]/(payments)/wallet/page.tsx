@@ -13,14 +13,8 @@ export default function WalletModal() {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-      onClick={handleClose}
-    >
-      <div
-        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-lg w-full max-w-md py-6 px-4"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal
-      >
+     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 relative">
         {/* Header with title and X icon */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Your Wallet</h2>

@@ -260,7 +260,7 @@ function ResponsiveRoomGrid({ rooms }: { rooms: Room[] }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         onClick={() => handleCardClick(room)}
-        className="cursor-pointer rounded-2xl overflow-hidden bg-slate-950 hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border-1 border-white"
+        className="cursor-pointer rounded-2xl overflow-hidden bg-slate-950 hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border-1/2 border-white"
       >
         <div className="px-4 py-2 border-b border-border text-center flex items-center justify-between">
           <div className="text-lg font-semibold">

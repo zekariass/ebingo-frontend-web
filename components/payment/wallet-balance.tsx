@@ -52,7 +52,7 @@ export function WalletBalance() {
       });
 
       return pendingDepBal;
-    }, [transactions]);
+    }, [transactions, getPendingTransactions]);
 
 
   useEffect(() => {

@@ -178,10 +178,13 @@ export const usePaymentStore = create<PaymentState>()(
       },
 
 
-      getPendingTransactions: () => {
-        const { transactions } = get()
-        return transactions.filter((t) => t.status === 'PENDING' || t.status === 'AWAITING_APPROVAL')
-      },
+     getPendingTransactions: () => {
+      const { transactions } = get()
+      return Array.isArray(transactions)
+        ? transactions.filter(t => t.status === 'PENDING' || t.status === 'AWAITING_APPROVAL')
+        : []
+    },
+
 
 
       getRecentTransactions: (limit = 10) => {

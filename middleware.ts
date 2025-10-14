@@ -69,6 +69,9 @@ const PROTECTED_PATHS = [
   "/transactions",
   "/wallets",
   "/game-payments",
+  "/transfer",
+  "/withdraw",
+  "/deposit"
 ];
 
 export async function middleware(req: NextRequest) {

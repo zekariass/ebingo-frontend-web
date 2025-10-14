@@ -4,7 +4,6 @@ import axios from 'axios';
 import path from 'path';
 import dotenv from 'dotenv';
 import { Room } from '@/lib/types';
-import fs from 'fs'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -14,7 +13,7 @@ if (!process.env.APP_URL) throw new Error('APP_URL missing');
 
 const API_BASE_URL = process.env.BACKEND_BASE_URL;
 const APP_URL = process.env.APP_URL;
-const ROOMS_PER_PAGE = 2;
+const ROOMS_PER_PAGE = 10;
 const currency = "Birr";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);

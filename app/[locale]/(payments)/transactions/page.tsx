@@ -1,36 +1,3 @@
-// 'use client'
-// import { TransactionHistory } from "@/components/payment/transaction-history";
-// import { Button } from "@/components/ui/button";
-// import { DialogHeader } from "@/components/ui/dialog";
-// import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@radix-ui/react-dialog";
-// import { useRouter } from "next/navigation";
-
-
-// export default function Transactions(){
-
-//      const router = useRouter();
-
-//     // Called when user closes the dialog (click outside, press Esc, etc.)
-//     const handleClose = () => {
-//         router.back(); // Goes back to /wallet
-//     };
-
-//     return (
-//         <Dialog open={true} onOpenChange={handleClose}>
-//             <DialogContent className="max-w-2xl">
-//               <DialogHeader>
-//                 <DialogTitle>
-//                   Deposits and Withdrawals
-//                 </DialogTitle>
-//               </DialogHeader>
-//               <TransactionHistory />
-//             </DialogContent>
-//         </Dialog>
-            
-//     )
-// }
-
-
 'use client'
 import { TransactionHistory } from "@/components/payment/transaction-history";
 import { Button } from "@/components/ui/button";
@@ -45,14 +12,8 @@ export default function Transactions() {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-      onClick={handleClose}
-    >
-      <div
-        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-lg w-full max-w-2xl py-6 px-2"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal
-      >
+     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 relative">
         {/* Header with title and close icon */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Deposits and Withdrawals</h2>
