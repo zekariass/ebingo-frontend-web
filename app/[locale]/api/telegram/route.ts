@@ -114,19 +114,38 @@ async function setLocalizedCommands() {
 }
 
 // ---------------- Footer keyboard ----------------
-function getFooterKeyboard(selectedLanguage: string = 'en') {
+// function getFooterKeyboard(selectedLanguage: string = 'en') {
+//   const langTrans = translations[selectedLanguage];
+//   return Markup.keyboard([
+//     [langTrans.btnWebview],
+//     [langTrans.btnGameRooms, langTrans.btnStartGame],
+//     [langTrans.btnDeposit, langTrans.btnTransfer],
+//     [langTrans.btnWithdraw, langTrans.btnInstructions],
+//     [langTrans.btnSupport],
+//     [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
+//   ])
+//     .resize()
+//     .oneTime(false)
+// }
+
+function getFooterKeyboard(selectedLanguage = 'en') {
   const langTrans = translations[selectedLanguage];
-  return Markup.keyboard([
-    [langTrans.btnWebview],
-    [langTrans.btnGameRooms, langTrans.btnStartGame],
-    [langTrans.btnDeposit, langTrans.btnTransfer],
-    [langTrans.btnWithdraw, langTrans.btnInstructions],
-    [langTrans.btnSupport],
-    [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
-  ])
-    .resize()
-    .oneTime(false)
+  return {
+    reply_markup: {
+      keyboard: [
+        [{ text: langTrans.btnWebview }],
+        [{ text: langTrans.btnGameRooms }, { text: langTrans.btnStartGame }],
+        [{ text: langTrans.btnDeposit }, { text: langTrans.btnTransfer }],
+        [{ text: langTrans.btnWithdraw }, { text: langTrans.btnInstructions }],
+        [{ text: langTrans.btnSupport }],
+        [{ text: `${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}` }]
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: false
+    }
+  };
 }
+
 
 // ---------------- Show Rooms ----------------
 async function showRooms(ctx: any, page = 1) {
@@ -170,6 +189,7 @@ async function showStartMenu(ctx: any) {
   const langTrans = translations[lang];
 
   await ctx.reply(`${greeting}\n\n${t(ctx, 'greeting')}`, getFooterKeyboard(lang));
+
 
 //   const inlineButtons = [
 //     [
