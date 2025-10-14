@@ -28,7 +28,6 @@ function getUserLanguage(ctx: any) {
 }
 
 // ---------------- Translation Helper ----------------
-// ---------------- Translation Helper ----------------
 const translations: Record<string, Record<string, string>> = {
   en: {
     greeting: "Welcome to Bingo Fam!",
@@ -198,12 +197,30 @@ async function showStartMenu(ctx: any) {
 }
 
 
+function getInlineMenu(lang: string) {
+  const langTrans = translations[lang];
+  return Markup.inlineKeyboard([
+    [Markup.button.callback(langTrans.btnWebview, 'cmd_webview')],
+    [Markup.button.callback(langTrans.btnGameRooms, 'cmd_gamerooms')],
+    [Markup.button.callback(langTrans.btnStartGame, 'cmd_startgame')],
+    [Markup.button.callback(langTrans.btnDeposit, 'cmd_deposit')],
+    [Markup.button.callback(langTrans.btnTransfer, 'cmd_transfer')],
+    [Markup.button.callback(langTrans.btnWithdraw, 'cmd_withdraw')],
+    [Markup.button.callback(langTrans.btnInstructions, 'cmd_instructions')],
+    [Markup.button.callback(langTrans.btnSupport, 'cmd_support')],
+    [Markup.button.callback(`${langTrans.btnLanguage}`, 'cmd_language')],
+  ]);
+}
+
+
 bot.start(async (ctx) => {
   const userId = ctx.from?.id;
   if (!userLanguageMap.has(userId)) {
     userLanguageMap.set(userId, 'en'); // default language
   }
   await showStartMenu(ctx);
+  const lang = getUserLanguage(ctx);
+  await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
 });
 
 
@@ -272,102 +289,38 @@ bot.action('cmd_language', async (ctx) => {
 
 
 
-bot.on('text', async (ctx) => {
-  const text = ctx.message.text;
-  const lang = getUserLanguage(ctx);
-  const langTrans = translations[lang];
+// // ------------------ Command Handlers ------------------
+// bot.command('webview', async (ctx) => {
+//   await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
+//     Markup.button.webApp('Open Lobby', `${APP_URL}/${getUserLanguage(ctx)}`)
+//   ]));
+// });
 
-  switch(text) {
-    case langTrans.btnWebview:
-      await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
-        Markup.button.webApp('Open Lobby', `${APP_URL}/${lang}`)
-      ]));
-      break;
+// bot.command('gamerooms', async (ctx) => await showRooms(ctx));
+// bot.command('startgame', async (ctx) => await showStartMenu(ctx));
+// bot.command('deposit', async (ctx) => await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
+//   Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposits`)
+// ])));
+// bot.command('transfer', async (ctx) => await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
+//   Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfers`)
+// ])));
+// bot.command('withdraw', async (ctx) => await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
+//   Markup.button.webApp('Withdraw Money', `${APP_URL}/${getUserLanguage(ctx)}/withdraw`)
+// ])));
+// bot.command('instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
+//   Markup.button.webApp('How to Play', `${APP_URL}/${getUserLanguage(ctx)}/instructions`)
+// ])));
+// bot.command('support', async (ctx) => await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
+//   Markup.button.webApp('Get Support', `${APP_URL}/${getUserLanguage(ctx)}/support`)
+// ])));
 
-    case langTrans.btnGameRooms:
-      await showRooms(ctx);
-      break;
-
-    case langTrans.btnStartGame:
-      await ctx.reply(t(ctx, 'startGame'), getFooterKeyboard(lang));
-      break;
-
-    case langTrans.btnDeposit:
-      await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
-        Markup.button.webApp('Deposit Fund', `${APP_URL}/${lang}/deposits`)
-      ]));
-      break;
-
-    case langTrans.btnTransfer:
-      await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
-        Markup.button.webApp('Transfer Fund', `${APP_URL}/${lang}/transfers`)
-      ]));
-      break;
-
-    case langTrans.btnWithdraw:
-      await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
-        Markup.button.webApp('Withdraw Money', `${APP_URL}/${lang}/withdraw`)
-      ]));
-      break;
-
-    case langTrans.btnInstructions:
-      await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
-        Markup.button.webApp('How to Play', `${APP_URL}/${lang}/instructions`)
-      ]));
-      break;
-
-    case langTrans.btnSupport:
-      await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
-        Markup.button.webApp('Get Support', `${APP_URL}/${lang}/support`)
-      ]));
-      break;
-
-    default:
-      // Handle language button
-      if (text.startsWith(`${langTrans.btnLanguage}:`)) {
-        const inlineButtons = availableLanguages.map(l =>
-          Markup.button.callback(l.toUpperCase(), `set_language_${l}`)
-        );
-        await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
-      }
-      break;
-  }
-});
-
-
-
-// ------------------ Command Handlers ------------------
-bot.command('webview', async (ctx) => {
-  await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
-    Markup.button.webApp('Open Lobby', `${APP_URL}/${getUserLanguage(ctx)}`)
-  ]));
-});
-
-bot.command('gamerooms', async (ctx) => await showRooms(ctx));
-bot.command('startgame', async (ctx) => await showStartMenu(ctx));
-bot.command('deposit', async (ctx) => await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
-  Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposits`)
-])));
-bot.command('transfer', async (ctx) => await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
-  Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfers`)
-])));
-bot.command('withdraw', async (ctx) => await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
-  Markup.button.webApp('Withdraw Money', `${APP_URL}/${getUserLanguage(ctx)}/withdraw`)
-])));
-bot.command('instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
-  Markup.button.webApp('How to Play', `${APP_URL}/${getUserLanguage(ctx)}/instructions`)
-])));
-bot.command('support', async (ctx) => await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
-  Markup.button.webApp('Get Support', `${APP_URL}/${getUserLanguage(ctx)}/support`)
-])));
-
-// ------------------ Language Command ------------------
-bot.command('language', async (ctx) => {
-  const inlineButtons = availableLanguages.map(lang =>
-    Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
-  );
-  await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
-});
+// // ------------------ Language Command ------------------
+// bot.command('language', async (ctx) => {
+//   const inlineButtons = availableLanguages.map(lang =>
+//     Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
+//   );
+//   await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
+// });
 
 // ------------------ Language Action Handler ------------------
 bot.action(/set_language_(.+)/, async (ctx) => {
