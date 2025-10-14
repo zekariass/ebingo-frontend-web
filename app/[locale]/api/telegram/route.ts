@@ -209,66 +209,66 @@ bot.start(async (ctx) => {
 
 
 // ------------------ Inline command handlers ------------------
-// bot.action('cmd_webview', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
-//     Markup.button.webApp('Open Lobby', `${APP_URL}/${getUserLanguage(ctx)}`)
-//   ]));
-// });
+bot.action('cmd_webview', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
+    Markup.button.webApp('Open Lobby', `${APP_URL}/${getUserLanguage(ctx)}`)
+  ]));
+});
 
-// bot.action('cmd_gamerooms', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await showRooms(ctx);
-// });
+bot.action('cmd_gamerooms', async (ctx) => {
+  await ctx.answerCbQuery();
+  await showRooms(ctx);
+});
 
-// bot.action('cmd_startgame', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'startGame'), getFooterKeyboard(getUserLanguage(ctx)));
-//   // await showStartMenu(ctx)
-// });
+bot.action('cmd_startgame', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'startGame'), getFooterKeyboard(getUserLanguage(ctx)));
+  // await showStartMenu(ctx)
+});
 
-// bot.action('cmd_deposit', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
-//     Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposit`)
-//   ]));
-// });
+bot.action('cmd_deposit', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
+    Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposit`)
+  ]));
+});
 
-// bot.action('cmd_transfer', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
-//     Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfer`)
-//   ]));
-// });
+bot.action('cmd_transfer', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
+    Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfer`)
+  ]));
+});
 
-// bot.action('cmd_withdraw', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
-//     Markup.button.webApp('Withdraw Money', `${APP_URL}/${getUserLanguage(ctx)}/withdraw`)
-//   ]));
-// });
+bot.action('cmd_withdraw', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
+    Markup.button.webApp('Withdraw Money', `${APP_URL}/${getUserLanguage(ctx)}/withdraw`)
+  ]));
+});
 
-// bot.action('cmd_instructions', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
-//     Markup.button.webApp('How to Play', `${APP_URL}/${getUserLanguage(ctx)}/instructions`)
-//   ]));
-// });
+bot.action('cmd_instructions', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
+    Markup.button.webApp('How to Play', `${APP_URL}/${getUserLanguage(ctx)}/instructions`)
+  ]));
+});
 
-// bot.action('cmd_support', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
-//     Markup.button.webApp('Get Support', `${APP_URL}/${getUserLanguage(ctx)}/support`)
-//   ]));
-// });
+bot.action('cmd_support', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
+    Markup.button.webApp('Get Support', `${APP_URL}/${getUserLanguage(ctx)}/support`)
+  ]));
+});
 
-// bot.action('cmd_language', async (ctx) => {
-//   await ctx.answerCbQuery();
-//   const inlineButtons = availableLanguages.map(lang =>
-//     Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
-//   );
-//   await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
-// });
+bot.action('cmd_language', async (ctx) => {
+  await ctx.answerCbQuery();
+  const inlineButtons = availableLanguages.map(lang =>
+    Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
+  );
+  await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
+});
 
 
 
