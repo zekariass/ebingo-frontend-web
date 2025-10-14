@@ -220,8 +220,8 @@ function getInlineMenu(lang: string) {
 //     userLanguageMap.set(userId, 'en'); // default language
 //   }
 //   await showStartMenu(ctx);
-// //   const lang = getUserLanguage(ctx);
-// //   await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
+//   const lang = getUserLanguage(ctx);
+//   await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
 // });
 
 
@@ -241,6 +241,7 @@ bot.start(async (ctx) => {
 
   // Then show the start menu (keyboard or inline buttons)
   await showStartMenu(ctx);
+  await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
 });
 
 
