@@ -234,9 +234,9 @@ bot.start(async (ctx) => {
   const lang = getUserLanguage(ctx);
 
   // Send a welcome image from a local file
-  const imagePath = path.resolve('./public/bot_hero.png');
+  const imageUrl = `${APP_URL}/bot_hero.png`;
   await ctx.replyWithPhoto(
-    { source: fs.createReadStream(imagePath) },
+    { source: fs.createReadStream(imageUrl) },
     {
       caption: `${t(ctx, 'greeting')}\n👋 Hello ${ctx.from?.first_name || 'Player'}!`,
     }
