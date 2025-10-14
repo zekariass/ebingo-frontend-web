@@ -235,12 +235,9 @@ bot.start(async (ctx) => {
 
   // Send a welcome image from a local file
   const imageUrl = `${APP_URL}/bot_hero.png`;
-  await ctx.replyWithPhoto(
-    { source: fs.createReadStream(imageUrl) },
-    {
-      caption: `${t(ctx, 'greeting')}\n👋 Hello ${ctx.from?.first_name || 'Player'}!`,
-    }
-  );
+    await ctx.replyWithPhoto(imageUrl, {
+    caption: `${t(ctx, 'greeting')}\n👋 Hello ${ctx.from?.first_name || 'Player'}!`,
+    });
 
   // Then show the start menu (keyboard or inline buttons)
   await showStartMenu(ctx);
