@@ -4,6 +4,7 @@ import axios from 'axios';
 import path from 'path';
 import dotenv from 'dotenv';
 import { Room } from '@/lib/types';
+import fs from 'fs'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -213,14 +214,36 @@ function getInlineMenu(lang: string) {
 }
 
 
+// bot.start(async (ctx) => {
+//   const userId = ctx.from?.id;
+//   if (!userLanguageMap.has(userId)) {
+//     userLanguageMap.set(userId, 'en'); // default language
+//   }
+//   await showStartMenu(ctx);
+// //   const lang = getUserLanguage(ctx);
+// //   await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
+// });
+
+
 bot.start(async (ctx) => {
   const userId = ctx.from?.id;
   if (!userLanguageMap.has(userId)) {
     userLanguageMap.set(userId, 'en'); // default language
   }
-  await showStartMenu(ctx);
+
   const lang = getUserLanguage(ctx);
-  await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
+
+  // Send a welcome image from a local file
+  const imagePath = path.resolve('./public/bot_hero.png');
+  await ctx.replyWithPhoto(
+    { source: fs.createReadStream(imagePath) },
+    {
+      caption: `${t(ctx, 'greeting')}\n👋 Hello ${ctx.from?.first_name || 'Player'}!`,
+    }
+  );
+
+  // Then show the start menu (keyboard or inline buttons)
+  await showStartMenu(ctx);
 });
 
 
