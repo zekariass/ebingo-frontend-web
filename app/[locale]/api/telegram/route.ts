@@ -114,19 +114,19 @@ async function setLocalizedCommands() {
 }
 
 // ---------------- Footer keyboard ----------------
-function getFooterKeyboard(selectedLanguage: string = 'en') {
-  const langTrans = translations[selectedLanguage];
-  return Markup.keyboard([
-    [langTrans.btnWebview],
-    [langTrans.btnGameRooms, langTrans.btnStartGame],
-    [langTrans.btnDeposit, langTrans.btnTransfer],
-    [langTrans.btnWithdraw, langTrans.btnInstructions],
-    [langTrans.btnSupport],
-    [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
-  ])
-    .resize()
-    .oneTime(false)
-}
+// function getFooterKeyboard(selectedLanguage: string = 'en') {
+//   const langTrans = translations[selectedLanguage];
+//   return Markup.keyboard([
+//     [langTrans.btnWebview],
+//     [langTrans.btnGameRooms, langTrans.btnStartGame],
+//     [langTrans.btnDeposit, langTrans.btnTransfer],
+//     [langTrans.btnWithdraw, langTrans.btnInstructions],
+//     [langTrans.btnSupport],
+//     [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
+//   ])
+//     .resize()
+//     .oneTime(false)
+// }
 
 // function getFooterKeyboard(selectedLanguage = 'en') {
 //   const langTrans = translations[selectedLanguage];
@@ -186,9 +186,9 @@ async function showStartMenu(ctx: any) {
     lang === 'am' ? `👋 ሰላም ${firstName}!` :
     `👋 Hello!`;
 
-  const langTrans = translations[lang];
+//   const langTrans = translations[lang];
 
-  await ctx.reply(`${greeting}\n\n${t(ctx, 'greeting')}`, getFooterKeyboard(lang));
+//   await ctx.reply(`${greeting}\n\n${t(ctx, 'greeting')}`, getFooterKeyboard(lang));
 
 //   const inlineButtons = [
 //     [
@@ -279,7 +279,8 @@ bot.action('cmd_gamerooms', async (ctx) => {
 
 bot.action('cmd_startgame', async (ctx) => {
   await ctx.answerCbQuery();
-  await ctx.reply(t(ctx, 'startGame'), getFooterKeyboard(getUserLanguage(ctx)));
+  const lang = getUserLanguage(ctx);
+  await ctx.reply(t(ctx, 'startGame'), getInlineMenu(lang));
   // await showStartMenu(ctx)
 });
 
@@ -363,34 +364,34 @@ bot.command('language', async (ctx) => {
 
 
 // bot.hears('🎲 Game Rooms', async (ctx) => await showRooms(ctx));
-bot.hears('🎲 Game Rooms', async (ctx) => await showRooms(ctx));
-bot.hears('🎮 Start Game', async (ctx) => await ctx.reply(t(ctx, 'startGame')));
-bot.hears('💰 Deposit Fund', async (ctx) => await ctx.reply(t(ctx, 'deposit')));
-bot.hears('🔁 Transfer Fund', async (ctx) => await ctx.reply(t(ctx, 'transfer')));
-bot.hears('💸 Withdraw Money', async (ctx) => await ctx.reply(t(ctx, 'withdraw')));
-bot.hears('📖 Instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions')));
-bot.hears('🧑‍💻 Support', async (ctx) => await ctx.reply(t(ctx, 'support')));
-bot.hears(/^🌐 Language/, async (ctx) => {
-  const inlineButtons = availableLanguages.map(lang =>
-    Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
-  );
-  await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
-});
+// bot.hears('🎲 Game Rooms', async (ctx) => await showRooms(ctx));
+// bot.hears('🎮 Start Game', async (ctx) => await ctx.reply(t(ctx, 'startGame')));
+// bot.hears('💰 Deposit Fund', async (ctx) => await ctx.reply(t(ctx, 'deposit')));
+// bot.hears('🔁 Transfer Fund', async (ctx) => await ctx.reply(t(ctx, 'transfer')));
+// bot.hears('💸 Withdraw Money', async (ctx) => await ctx.reply(t(ctx, 'withdraw')));
+// bot.hears('📖 Instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions')));
+// bot.hears('🧑‍💻 Support', async (ctx) => await ctx.reply(t(ctx, 'support')));
+// bot.hears(/^🌐 Language/, async (ctx) => {
+//   const inlineButtons = availableLanguages.map(lang =>
+//     Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
+//   );
+//   await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
+// });
 
 
-bot.hears('📖 መመሪያ', async (ctx) => await ctx.reply(t(ctx, 'instructions')));
-bot.hears('🎲 የጨዋታ ክፍሎች', async (ctx) => await showRooms(ctx));
-bot.hears('🎮 ጨዋታ ጀምር', async (ctx) => await ctx.reply(t(ctx, 'startGame')));
-bot.hears('💰 ተቀማጭ', async (ctx) => await ctx.reply(t(ctx, 'deposit')));
-bot.hears('🔁 ክፍያ ላክ', async (ctx) => await ctx.reply(t(ctx, 'transfer')));
-bot.hears('💸 ገንዘብ ውሰድ', async (ctx) => await ctx.reply(t(ctx, 'withdraw')));
-bot.hears('🧑‍💻 ድጋፍ', async (ctx) => await ctx.reply(t(ctx, 'support')));
-bot.hears(/^🌐 ቋንቋ/, async (ctx) => {
-  const inlineButtons = availableLanguages.map(lang =>
-    Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
-  );
-  await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
-});
+// bot.hears('📖 መመሪያ', async (ctx) => await ctx.reply(t(ctx, 'instructions')));
+// bot.hears('🎲 የጨዋታ ክፍሎች', async (ctx) => await showRooms(ctx));
+// bot.hears('🎮 ጨዋታ ጀምር', async (ctx) => await ctx.reply(t(ctx, 'startGame')));
+// bot.hears('💰 ተቀማጭ', async (ctx) => await ctx.reply(t(ctx, 'deposit')));
+// bot.hears('🔁 ክፍያ ላክ', async (ctx) => await ctx.reply(t(ctx, 'transfer')));
+// bot.hears('💸 ገንዘብ ውሰድ', async (ctx) => await ctx.reply(t(ctx, 'withdraw')));
+// bot.hears('🧑‍💻 ድጋፍ', async (ctx) => await ctx.reply(t(ctx, 'support')));
+// bot.hears(/^🌐 ቋንቋ/, async (ctx) => {
+//   const inlineButtons = availableLanguages.map(lang =>
+//     Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
+//   );
+//   await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
+// });
 
 
 
@@ -401,7 +402,7 @@ bot.action(/set_language_(.+)/, async (ctx) => {
   const userId = ctx.from?.id;
   if (!userId || !selectedLang) return;
   userLanguageMap.set(userId, selectedLang);
-  await ctx.reply(`${t(ctx, 'languageChanged')} ${selectedLang.toUpperCase()}`, getFooterKeyboard(selectedLang));
+  await ctx.reply(`${t(ctx, 'languageChanged')} ${selectedLang.toUpperCase()}`);
 });
 
 // ------------------ Pagination Handler ------------------
