@@ -186,33 +186,8 @@ async function showStartMenu(ctx: any) {
     lang === 'am' ? `👋 ሰላም ${firstName}!` :
     `👋 Hello!`;
 
-//   const langTrans = translations[lang];
+  await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
 
-//   await ctx.reply(`${greeting}\n\n${t(ctx, 'greeting')}`, getFooterKeyboard(lang));
-
-//   const inlineButtons = [
-//     [
-//       Markup.button.callback(langTrans.btnWebview, 'cmd_webview'),
-//       Markup.button.callback(langTrans.btnGameRooms, 'cmd_gamerooms'),
-//     ],
-//     [
-//       Markup.button.callback(langTrans.btnStartGame, 'cmd_startgame'),
-//       Markup.button.callback(langTrans.btnDeposit, 'cmd_deposit'),
-//     ],
-//     [
-//       Markup.button.callback(langTrans.btnTransfer, 'cmd_transfer'),
-//       Markup.button.callback(langTrans.btnWithdraw, 'cmd_withdraw'),
-//     ],
-//     [
-//       Markup.button.callback(langTrans.btnInstructions, 'cmd_instructions'),
-//       Markup.button.callback(langTrans.btnSupport, 'cmd_support'),
-//     ],
-//     [
-//       Markup.button.callback(`${langTrans.btnLanguage}`, 'cmd_language'),
-//     ],
-//   ];
-
-//   await ctx.reply('📋 Choose a command:', Markup.inlineKeyboard(inlineButtons));
 }
 
 
@@ -232,17 +207,6 @@ function getInlineMenu(lang: string) {
 }
 
 
-// bot.start(async (ctx) => {
-//   const userId = ctx.from?.id;
-//   if (!userLanguageMap.has(userId)) {
-//     userLanguageMap.set(userId, 'en'); // default language
-//   }
-//   await showStartMenu(ctx);
-//   const lang = getUserLanguage(ctx);
-//   await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
-// });
-
-
 bot.start(async (ctx) => {
   const userId = ctx.from?.id;
   if (!userLanguageMap.has(userId)) {
@@ -259,7 +223,6 @@ bot.start(async (ctx) => {
 
   // Then show the start menu (keyboard or inline buttons)
   await showStartMenu(ctx);
-  await ctx.reply('📋 Choose a command:', getInlineMenu(lang));
 });
 
 
