@@ -4,6 +4,7 @@ import axios from 'axios';
 import path from 'path';
 import dotenv from 'dotenv';
 import { Room } from '@/lib/types';
+import i18n from '@/i18n';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -28,9 +29,58 @@ function getUserLanguage(ctx: any) {
 }
 
 // ---------------- Translation Helper ----------------
+// ---------------- Translation Helper ----------------
 const translations: Record<string, Record<string, string>> = {
-  en: { /* same as your original code */ },
-  am: { /* same as your original code */ },
+  en: {
+    greeting: "Welcome to Bingo Fam!",
+    noRooms: "❌ No rooms available right now.",
+    fetchError: "❌ Failed to load rooms. Please try again later.",
+    chooseRoom: "🎲 Choose a Bingo room:",
+    openingWebview: "🌐 Opening Web View Lobby",
+    startGame: "🎮 Start Game selected!",
+    deposit: "💰 Deposit here:",
+    transfer: "🔁 Transfer here:",
+    withdraw: "💸 Withdraw here:",
+    instructions: "📖 Instructions:",
+    support: "🧑‍💻 Contact support:",
+    languageChanged: "🌐 Language changed to",
+    btnWebview: "🌐 Web View Lobby",
+    btnGameRooms: "🎲 Game Rooms",
+    btnStartGame: "🎮 Start Game",
+    btnDeposit: "💰 Deposit Fund",
+    btnTransfer: "🔁 Transfer Fund",
+    btnWithdraw: "💸 Withdraw Money",
+    btnInstructions: "📖 Instructions",
+    btnSupport: "🧑‍💻 Support",
+    btnLanguage: "🌐 Language",
+    prev: "⬅️ Prev",
+    next: "Next ➡️"
+  },
+  am: {
+    greeting: "በቤንጎ ቤተሰብ ወደ እንኳን በደህና መጡ!",
+    noRooms: "❌ አሁን ክፍሎች የሉም።",
+    fetchError: "❌ ክፍሎችን ማስገባት አልተቻለም። እባክዎ ከፍ ያድርጉ።",
+    chooseRoom: "🎲 ክፍሎችን ይምረጡ:",
+    openingWebview: "🌐 የድህረገፅ እይታ እየተከፈተ ነው",
+    startGame: "🎮 ጨዋታ መጀመር ተጀምሯል!",
+    deposit: "💰 ተቀማጭ ያድርጉ:",
+    transfer: "🔁 ገንዘብ ይከፍሉ:",
+    withdraw: "💸 ገንዘብ ይወስዱ:",
+    instructions: "📖 መመሪያዎች:",
+    support: "🧑‍💻 ድጋፍ ያግኙ:",
+    languageChanged: "🌐 ቋንቋ ተቀይሯል",
+    btnWebview: "🌐 የድህረገፅ እይታ",
+    btnGameRooms: "🎲 የጨዋታ ክፍሎች",
+    btnStartGame: "🎮 ጨዋታ ጀምር",
+    btnDeposit: "💰 ተቀማጭ",
+    btnTransfer: "🔁 ክፍያ ላክ",
+    btnWithdraw: "💸 ገንዘብ ውሰድ",
+    btnInstructions: "📖 መመሪያ",
+    btnSupport: "🧑‍💻 ድጋፍ",
+    btnLanguage: "🌐 ቋንቋ",
+    prev: "⬅️ ቀድሞ",
+    next: "ቀጣይ ➡️"
+  }
 };
 
 function t(ctx: any, key: string): string {
@@ -275,8 +325,16 @@ export async function POST(req: NextRequest) {
 }
 
 // ------------------ Setup webhook on deployment ----------------
+// setLocalizedCommands().then(async () => {
+//   const webhookUrl = `${APP_URL}/api/telegram`;
+//   await bot.telegram.setWebhook(webhookUrl);
+//   console.log(`🤖 Telegram bot webhook set at ${webhookUrl}`);
+// });
+
 setLocalizedCommands().then(async () => {
-  const webhookUrl = `${APP_URL}/api/telegram`;
-  await bot.telegram.setWebhook(webhookUrl);
-  console.log(`🤖 Telegram bot webhook set at ${webhookUrl}`);
+  for (const locale of availableLanguages) {
+    const webhookUrl = `${APP_URL}/${locale}/api/telegram/webhook`;
+    await bot.telegram.setWebhook(webhookUrl);
+    console.log(`🤖 Telegram bot webhook set at ${webhookUrl}`);
+  }
 });
