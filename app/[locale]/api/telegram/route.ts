@@ -333,7 +333,7 @@ export async function POST(req: NextRequest) {
 
 setLocalizedCommands().then(async () => {
   for (const locale of availableLanguages) {
-    const webhookUrl = `${APP_URL}/${locale}/api/telegram/webhook`;
+    const webhookUrl = `${APP_URL}/${locale}/api/telegram`;
     await bot.telegram.setWebhook(webhookUrl);
     console.log(`🤖 Telegram bot webhook set at ${webhookUrl}`);
   }
