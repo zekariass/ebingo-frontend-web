@@ -89,9 +89,10 @@ function t(ctx: any, key: string): string {
 // ---------------- Set localized commands ----------------
 async function setLocalizedCommands() {
   await bot.telegram.setMyCommands([
-    { command: 'webview', description: '🌐 Open Web View' },
     { command: 'gamerooms', description: '🎲 Game Rooms' },
     { command: 'startgame', description: '🎮 Start Game' },
+    { command: 'webview', description: '🌐 Open Web View' },
+    { command: 'wallet', description: '💰 See Your Wallet' },
     { command: 'deposit', description: '💰 Deposit Fund' },
     { command: 'transfer', description: '🔁 Transfer Fund' },
     { command: 'withdraw', description: '💸 Withdraw Money' },
@@ -101,9 +102,10 @@ async function setLocalizedCommands() {
   ], { language_code: 'en' });
 
   await bot.telegram.setMyCommands([
-    { command: 'webview', description: '🌐 የድህረገፅ እይታ' },
     { command: 'gamerooms', description: '🎲 የጨዋታ ክፍሎች' },
     { command: 'startgame', description: '🎮 ጨዋታ ጀምር' },
+    { command: 'webview', description: '🌐 የድህረገፅ እይታ' },
+    { command: 'wallet', description: '💰 ዋሌትዎን ይመልከቱ' },
     { command: 'deposit', description: '💰 ተቀማጭ' },
     { command: 'transfer', description: '🔁 ክፍያ ላክ' },
     { command: 'withdraw', description: '💸 ገንዘብ ውሰድ' },
@@ -113,20 +115,6 @@ async function setLocalizedCommands() {
   ], { language_code: 'am' });
 }
 
-// ---------------- Footer keyboard ----------------
-// function getFooterKeyboard(selectedLanguage: string = 'en') {
-//   const langTrans = translations[selectedLanguage];
-//   return Markup.keyboard([
-//     [langTrans.btnWebview],
-//     [langTrans.btnGameRooms, langTrans.btnStartGame],
-//     [langTrans.btnDeposit, langTrans.btnTransfer],
-//     [langTrans.btnWithdraw, langTrans.btnInstructions],
-//     [langTrans.btnSupport],
-//     [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
-//   ])
-//     .resize()
-//     .oneTime(false)
-// }
 
 // function getFooterKeyboard(selectedLanguage = 'en') {
 //   const langTrans = translations[selectedLanguage];
@@ -247,6 +235,13 @@ bot.action('cmd_startgame', async (ctx) => {
   // await showStartMenu(ctx)
 });
 
+bot.action('cmd_wallet', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.reply(t(ctx, 'wallet'), Markup.inlineKeyboard([
+    Markup.button.webApp('Your Wallet', `${APP_URL}/${getUserLanguage(ctx)}/wallet`)
+  ]));
+});
+
 bot.action('cmd_deposit', async (ctx) => {
   await ctx.answerCbQuery();
   await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
@@ -300,10 +295,17 @@ bot.command('webview', async (ctx) => {
 });
 
 bot.command('gamerooms', async (ctx) => await showRooms(ctx));
+
 bot.command('startgame', async (ctx) => await showStartMenu(ctx));
+
 bot.command('deposit', async (ctx) => await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
   Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposits`)
 ])));
+
+bot.command('wallet', async (ctx) => await ctx.reply(t(ctx, 'wallet'), Markup.inlineKeyboard([
+  Markup.button.webApp('Your Wallet', `${APP_URL}/${getUserLanguage(ctx)}/wallet`)
+])));
+
 bot.command('transfer', async (ctx) => await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
   Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfers`)
 ])));
