@@ -67,7 +67,7 @@ const PROTECTED_PATHS = [
   "/admin",
   "/rooms",
   "/transactions",
-  "/wallets",
+  "/wallet",
   "/game-payments",
   "/transfer",
   "/withdraw",
