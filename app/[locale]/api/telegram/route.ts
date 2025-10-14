@@ -114,37 +114,37 @@ async function setLocalizedCommands() {
 }
 
 // ---------------- Footer keyboard ----------------
-// function getFooterKeyboard(selectedLanguage: string = 'en') {
-//   const langTrans = translations[selectedLanguage];
-//   return Markup.keyboard([
-//     [langTrans.btnWebview],
-//     [langTrans.btnGameRooms, langTrans.btnStartGame],
-//     [langTrans.btnDeposit, langTrans.btnTransfer],
-//     [langTrans.btnWithdraw, langTrans.btnInstructions],
-//     [langTrans.btnSupport],
-//     [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
-//   ])
-//     .resize()
-//     .oneTime(false)
-// }
-
-function getFooterKeyboard(selectedLanguage = 'en') {
+function getFooterKeyboard(selectedLanguage: string = 'en') {
   const langTrans = translations[selectedLanguage];
-  return {
-    reply_markup: {
-      keyboard: [
-        [{ text: langTrans.btnWebview }],
-        [{ text: langTrans.btnGameRooms }, { text: langTrans.btnStartGame }],
-        [{ text: langTrans.btnDeposit }, { text: langTrans.btnTransfer }],
-        [{ text: langTrans.btnWithdraw }, { text: langTrans.btnInstructions }],
-        [{ text: langTrans.btnSupport }],
-        [{ text: `${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}` }]
-      ],
-      resize_keyboard: true,
-      one_time_keyboard: false
-    }
-  };
+  return Markup.keyboard([
+    [langTrans.btnWebview],
+    [langTrans.btnGameRooms, langTrans.btnStartGame],
+    [langTrans.btnDeposit, langTrans.btnTransfer],
+    [langTrans.btnWithdraw, langTrans.btnInstructions],
+    [langTrans.btnSupport],
+    [`${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}`]
+  ])
+    .resize()
+    .oneTime(false)
 }
+
+// function getFooterKeyboard(selectedLanguage = 'en') {
+//   const langTrans = translations[selectedLanguage];
+//   return {
+//     reply_markup: {
+//       keyboard: [
+//         [{ text: langTrans.btnWebview }],
+//         [{ text: langTrans.btnGameRooms }, { text: langTrans.btnStartGame }],
+//         [{ text: langTrans.btnDeposit }, { text: langTrans.btnTransfer }],
+//         [{ text: langTrans.btnWithdraw }, { text: langTrans.btnInstructions }],
+//         [{ text: langTrans.btnSupport }],
+//         [{ text: `${langTrans.btnLanguage}: ${selectedLanguage.toUpperCase()}` }]
+//       ],
+//       resize_keyboard: true,
+//       one_time_keyboard: false
+//     }
+//   };
+// }
 
 
 // ---------------- Show Rooms ----------------
@@ -362,7 +362,7 @@ bot.command('language', async (ctx) => {
 });
 
 
-
+// bot.hears('🎲 Game Rooms', async (ctx) => await showRooms(ctx));
 bot.hears('🎲 Game Rooms', async (ctx) => await showRooms(ctx));
 bot.hears('🎮 Start Game', async (ctx) => await ctx.reply(t(ctx, 'startGame')));
 bot.hears('💰 Deposit Fund', async (ctx) => await ctx.reply(t(ctx, 'deposit')));
