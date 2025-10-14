@@ -289,38 +289,38 @@ bot.action('cmd_language', async (ctx) => {
 
 
 
-// // ------------------ Command Handlers ------------------
-// bot.command('webview', async (ctx) => {
-//   await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
-//     Markup.button.webApp('Open Lobby', `${APP_URL}/${getUserLanguage(ctx)}`)
-//   ]));
-// });
+// ------------------ Command Handlers ------------------
+bot.command('webview', async (ctx) => {
+  await ctx.reply(t(ctx, 'openingWebview'), Markup.inlineKeyboard([
+    Markup.button.webApp('Open Lobby', `${APP_URL}/${getUserLanguage(ctx)}`)
+  ]));
+});
 
-// bot.command('gamerooms', async (ctx) => await showRooms(ctx));
-// bot.command('startgame', async (ctx) => await showStartMenu(ctx));
-// bot.command('deposit', async (ctx) => await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
-//   Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposits`)
-// ])));
-// bot.command('transfer', async (ctx) => await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
-//   Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfers`)
-// ])));
-// bot.command('withdraw', async (ctx) => await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
-//   Markup.button.webApp('Withdraw Money', `${APP_URL}/${getUserLanguage(ctx)}/withdraw`)
-// ])));
-// bot.command('instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
-//   Markup.button.webApp('How to Play', `${APP_URL}/${getUserLanguage(ctx)}/instructions`)
-// ])));
-// bot.command('support', async (ctx) => await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
-//   Markup.button.webApp('Get Support', `${APP_URL}/${getUserLanguage(ctx)}/support`)
-// ])));
+bot.command('gamerooms', async (ctx) => await showRooms(ctx));
+bot.command('startgame', async (ctx) => await showStartMenu(ctx));
+bot.command('deposit', async (ctx) => await ctx.reply(t(ctx, 'deposit'), Markup.inlineKeyboard([
+  Markup.button.webApp('Deposit Fund', `${APP_URL}/${getUserLanguage(ctx)}/deposits`)
+])));
+bot.command('transfer', async (ctx) => await ctx.reply(t(ctx, 'transfer'), Markup.inlineKeyboard([
+  Markup.button.webApp('Transfer Fund', `${APP_URL}/${getUserLanguage(ctx)}/transfers`)
+])));
+bot.command('withdraw', async (ctx) => await ctx.reply(t(ctx, 'withdraw'), Markup.inlineKeyboard([
+  Markup.button.webApp('Withdraw Money', `${APP_URL}/${getUserLanguage(ctx)}/withdraw`)
+])));
+bot.command('instructions', async (ctx) => await ctx.reply(t(ctx, 'instructions'), Markup.inlineKeyboard([
+  Markup.button.webApp('How to Play', `${APP_URL}/${getUserLanguage(ctx)}/instructions`)
+])));
+bot.command('support', async (ctx) => await ctx.reply(t(ctx, 'support'), Markup.inlineKeyboard([
+  Markup.button.webApp('Get Support', `${APP_URL}/${getUserLanguage(ctx)}/support`)
+])));
 
-// // ------------------ Language Command ------------------
-// bot.command('language', async (ctx) => {
-//   const inlineButtons = availableLanguages.map(lang =>
-//     Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
-//   );
-//   await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
-// });
+// ------------------ Language Command ------------------
+bot.command('language', async (ctx) => {
+  const inlineButtons = availableLanguages.map(lang =>
+    Markup.button.callback(lang.toUpperCase(), `set_language_${lang}`)
+  );
+  await ctx.reply('🌐 Select your language:', Markup.inlineKeyboard(inlineButtons, { columns: 2 }));
+});
 
 // ------------------ Language Action Handler ------------------
 bot.action(/set_language_(.+)/, async (ctx) => {
@@ -358,9 +358,6 @@ export async function POST(req: NextRequest) {
 // });
 
 setLocalizedCommands().then(async () => {
-  for (const locale of availableLanguages) {
-    const webhookUrl = `${APP_URL}/${locale}/api/telegram`;
+   const webhookUrl = `${APP_URL}/en/api/telegram`;
     await bot.telegram.setWebhook(webhookUrl);
-    console.log(`🤖 Telegram bot webhook set at ${webhookUrl}`);
-  }
 });
